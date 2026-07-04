@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nav } from "@/components/Nav";
+import { CompanyLogo } from "@/components/CompanyLogo";
 
 export const metadata: Metadata = {
   title: "Saad Mukhtar",
@@ -31,6 +32,7 @@ type ExperienceEntry = {
   location: string;
   current: boolean;
   bullets: string[];
+  logoDomain: string;
 };
 
 const experience: ExperienceEntry[] = [
@@ -41,6 +43,7 @@ const experience: ExperienceEntry[] = [
     period: "Aug 2025–Present",
     location: "San Francisco, CA",
     current: true,
+    logoDomain: "capitalone.com",
     bullets: [
       "Diagnosed a 92.5% billing undercounting defect in a distributed OpenTelemetry pipeline; authored the root-cause analysis, led remediation across 20+ sessions with Principal Engineers, and restored metric accuracy, recovering $1M+ in enterprise contract billing.",
       "Co-architected the telemetry pipeline (OpenTelemetry → S3 → Lambda → ClickHouse) for a multi-tenant observability and billing platform, ingesting 10M+ metrics/day across cloud-hosted and air-gapped Kubernetes.",
@@ -52,6 +55,7 @@ const experience: ExperienceEntry[] = [
     period: "Jun–Aug 2024",
     location: "Dallas, TX",
     current: false,
+    logoDomain: "capitalone.com",
     bullets: [
       "Built a NestJS API on AWS Fargate (containerized microservices, CI/CD, auth) to accelerate read-heavy SailPoint workflows, eliminating 500+ daily support tickets for 2,000+ engineers.",
     ],
@@ -62,6 +66,7 @@ const experience: ExperienceEntry[] = [
     period: "Jan–Apr 2024",
     location: "Palo Alto, CA",
     current: false,
+    logoDomain: "tesla.com",
     bullets: [
       "Engineered a Python backend for cryptographic signature verification of safety-critical vehicle firmware, integrating build system APIs and secure key services to protect 1M+ updates per release.",
     ],
@@ -72,6 +77,7 @@ const experience: ExperienceEntry[] = [
     period: "May–Aug 2023",
     location: "Remote",
     current: false,
+    logoDomain: "super.com",
     bullets: [
       "Won 1st place in company hackathon by building an OpenAI-powered itinerary generator projected to drive $200K+ in ARR through personalized booking recommendations.",
     ],
@@ -82,6 +88,7 @@ const experience: ExperienceEntry[] = [
     period: "Sep–Dec 2022",
     location: "Remote",
     current: false,
+    logoDomain: "playstation.com",
     bullets: [
       "Shipped cross-platform React Native features (TypeScript) for the PS4/PS5 subscription tier launch, contributing to a rollout generating $600M+ annual revenue across 10M+ users.",
     ],
@@ -92,6 +99,7 @@ const experience: ExperienceEntry[] = [
     period: "Jan–Apr 2022",
     location: "Remote",
     current: false,
+    logoDomain: "playstation.com",
     bullets: [
       "Designed and built a now-patented PS5 calendar feature in React Native; uncovered 16+ critical bugs affecting 40M+ users through PS4 Python test automation expansion.",
     ],
@@ -206,6 +214,7 @@ export default function Home() {
                 <div className="flex items-start justify-between gap-6 mb-3">
                   <div>
                     <div className="flex items-center gap-2">
+                      <CompanyLogo domain={job.logoDomain} company={job.company} />
                       {job.current && (
                         <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-emerald-500" />
                       )}

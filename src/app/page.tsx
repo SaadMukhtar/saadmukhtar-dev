@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
   title: "Saad Mukhtar",
@@ -10,7 +11,6 @@ type Project = {
   description: string;
   stack: string[];
   status: "building" | "planned";
-  href?: string;
 };
 
 const projects: Project[] = [
@@ -21,131 +21,165 @@ const projects: Project[] = [
     stack: ["Go", "Kafka", "ClickHouse", "OpenTelemetry"],
     status: "building",
   },
-  {
-    name: "Kubernetes Operator",
-    description:
-      "Custom operator managing the full lifecycle of a stateful application via CRDs and controller reconciliation",
-    stack: ["Go", "kubebuilder", "controller-runtime"],
-    status: "planned",
-  },
-  {
-    name: "LLM Inference Server",
-    description:
-      "From-scratch inference server with continuous batching, KV cache management, and quantization",
-    stack: ["Python", "PyTorch", "CUDA"],
-    status: "planned",
-  },
-  {
-    name: "RAG Pipeline with Evals",
-    description:
-      "Retrieval-augmented generation pipeline with a built-in harness measuring retrieval precision and faithfulness",
-    stack: ["Python", "pgvector", "RAGAS"],
-    status: "planned",
-  },
-  {
-    name: "Distributed Load Balancer",
-    description:
-      "L7 load balancer with consistent hashing, circuit breaking, and live config reloading without downtime",
-    stack: ["Go", "etcd", "Prometheus"],
-    status: "planned",
-  },
-  {
-    name: "Voice Agent",
-    description:
-      "Real-time voice AI agent with sub-500ms perceived latency, streaming tool use, and barge-in handling",
-    stack: ["Python", "Claude API", "WebSockets"],
-    status: "planned",
-  },
 ];
 
-const experience = [
-  { company: "Capital One", role: "Founding Software Engineer" },
-  { company: "Tesla", role: "Software Engineer" },
-  { company: "PlayStation", role: "Software Engineer" },
-  { company: "Super.com", role: "Software Engineer" },
+type ExperienceEntry = {
+  company: string;
+  subtitle?: string;
+  role: string;
+  period: string;
+  location: string;
+  current: boolean;
+  bullets: string[];
+};
+
+const experience: ExperienceEntry[] = [
+  {
+    company: "Capital One Software",
+    subtitle: "Developer Infrastructure",
+    role: "Software Engineer",
+    period: "Aug 2025–Present",
+    location: "San Francisco, CA",
+    current: true,
+    bullets: [
+      "Diagnosed a 92.5% billing undercounting defect in a distributed OpenTelemetry pipeline; authored the root-cause analysis, led remediation across 20+ sessions with Principal Engineers, and restored metric accuracy, recovering $1M+ in enterprise contract billing.",
+      "Co-architected the telemetry pipeline (OpenTelemetry → S3 → Lambda → ClickHouse) for a multi-tenant observability and billing platform, ingesting 10M+ metrics/day across cloud-hosted and air-gapped Kubernetes.",
+    ],
+  },
+  {
+    company: "Capital One",
+    role: "Software Engineer Intern",
+    period: "Jun–Aug 2024",
+    location: "Dallas, TX",
+    current: false,
+    bullets: [
+      "Built a NestJS API on AWS Fargate (containerized microservices, CI/CD, auth) to accelerate read-heavy SailPoint workflows, eliminating 500+ daily support tickets for 2,000+ engineers.",
+    ],
+  },
+  {
+    company: "Tesla",
+    role: "Software Engineer Intern",
+    period: "Jan–Apr 2024",
+    location: "Palo Alto, CA",
+    current: false,
+    bullets: [
+      "Engineered a Python backend for cryptographic signature verification of safety-critical vehicle firmware, integrating build system APIs and secure key services to protect 1M+ updates per release.",
+    ],
+  },
+  {
+    company: "Super.com",
+    role: "Software Engineer Intern",
+    period: "May–Aug 2023",
+    location: "Remote",
+    current: false,
+    bullets: [
+      "Won 1st place in company hackathon by building an OpenAI-powered itinerary generator projected to drive $200K+ in ARR through personalized booking recommendations.",
+    ],
+  },
+  {
+    company: "PlayStation",
+    role: "Software Developer Intern",
+    period: "Sep–Dec 2022",
+    location: "Remote",
+    current: false,
+    bullets: [
+      "Shipped cross-platform React Native features (TypeScript) for the PS4/PS5 subscription tier launch, contributing to a rollout generating $600M+ annual revenue across 10M+ users.",
+    ],
+  },
+  {
+    company: "PlayStation",
+    role: "Software Developer in Test Intern",
+    period: "Jan–Apr 2022",
+    location: "Remote",
+    current: false,
+    bullets: [
+      "Designed and built a now-patented PS5 calendar feature in React Native; uncovered 16+ critical bugs affecting 40M+ users through PS4 Python test automation expansion.",
+    ],
+  },
 ];
 
 export default function Home() {
   return (
-    <div className="min-h-screen font-sans text-zinc-100">
-      {/* Nav */}
-      <nav className="sticky top-0 z-10 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <span className="font-medium text-zinc-100">Saad Mukhtar</span>
-          <div className="flex items-center gap-6 text-sm text-zinc-500">
+    <div className="min-h-screen font-sans text-[--foreground]">
+      <Nav />
+
+      <main className="relative z-10 mx-auto max-w-4xl px-6">
+        {/* Hero */}
+        <section className="relative pb-32 pt-48">
+          {/* Radial glow behind hero */}
+          <div className="pointer-events-none absolute -top-16 left-0 h-80 w-80 rounded-full bg-white/[0.03] blur-3xl dark:bg-white/[0.04]" />
+
+          {/* Availability badge */}
+          <div className="animate-fade-up mb-10 inline-flex items-center gap-2 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-3.5 py-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+            Available · Open to new roles
+          </div>
+
+          <h1 className="animate-fade-up anim-delay-1 mb-4 text-6xl font-semibold tracking-tight text-black dark:text-white md:text-7xl">
+            Saad Mukhtar.
+          </h1>
+
+          <p className="animate-fade-up anim-delay-2 mb-6 text-xl text-neutral-500">
+            Software Engineer · Distributed Systems · Infrastructure
+          </p>
+
+          <p className="animate-fade-up anim-delay-3 max-w-md text-base leading-relaxed text-neutral-600 dark:text-neutral-400">
+            Capital One Software · Tesla · PlayStation · Super.com · UWaterloo CS
+          </p>
+
+          <div className="animate-fade-up anim-delay-4 mt-10 flex flex-wrap gap-3">
             <a
-              href="https://github.com/saadmukhtar"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-zinc-100"
+              href="#projects"
+              className="inline-flex items-center gap-2 rounded-full bg-black dark:bg-white px-5 py-2.5 text-sm font-medium text-white dark:text-black transition-opacity hover:opacity-75"
             >
-              GitHub
-            </a>
-            <a
-              href="https://linkedin.com/in/saadmukhtar"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-zinc-100"
-            >
-              LinkedIn
+              View Projects
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M6 1v10M1 6l5 5 5-5" />
+              </svg>
             </a>
             <a
               href="mailto:saadmukhtar01@gmail.com"
-              className="transition-colors hover:text-zinc-100"
+              className="inline-flex items-center gap-2 rounded-full border border-black/15 dark:border-white/15 px-5 py-2.5 text-sm text-black dark:text-white transition-colors hover:border-black/35 dark:hover:border-white/35"
             >
-              Email
+              Get in Touch →
             </a>
           </div>
-        </div>
-      </nav>
-
-      <main className="mx-auto max-w-3xl px-6">
-        {/* Hero */}
-        <section className="py-24">
-          <h1 className="mb-2 text-4xl font-semibold tracking-tight text-zinc-100">
-            Saad Mukhtar
-          </h1>
-          <p className="mb-8 text-lg text-zinc-500">Software Engineer</p>
-          <p className="max-w-lg text-base leading-relaxed text-zinc-400">
-            Building distributed systems at Capital One — telemetry platform
-            ingesting 10M+ metrics/day. Previously Tesla, PlayStation, Super.com.
-            UWaterloo CS.
-          </p>
         </section>
 
-        <hr className="border-zinc-800" />
+        <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
 
         {/* Projects */}
-        <section className="py-16">
-          <h2 className="mb-10 text-xs font-medium uppercase tracking-widest text-zinc-600">
+        <section id="projects" className="py-24">
+          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
             Building
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
+          </p>
+          <div className="grid sm:grid-cols-2">
             {projects.map((project) => (
               <div
                 key={project.name}
-                className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-5 transition-colors hover:border-zinc-700 hover:bg-zinc-900/60"
+                className="scroll-reveal group border border-black/[0.10] dark:border-white/[0.10] p-6 transition-all duration-200 hover:-translate-y-0.5 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
               >
-                <div className="mb-2 flex items-start justify-between gap-3">
-                  <h3 className="font-medium text-zinc-100">{project.name}</h3>
-                  <span
-                    className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                      project.status === "building"
-                        ? "bg-emerald-950 text-emerald-400"
-                        : "bg-zinc-800 text-zinc-500"
-                    }`}
-                  >
-                    {project.status}
-                  </span>
+                <div className="mb-2 flex items-start justify-between gap-4">
+                  <h3 className="font-medium text-black dark:text-white">{project.name}</h3>
+                  {project.status === "building" ? (
+                    <span className="mt-0.5 flex shrink-0 items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                      building
+                    </span>
+                  ) : (
+                    <span className="mt-0.5 shrink-0 text-xs text-black/20 dark:text-white/20">
+                      planned
+                    </span>
+                  )}
                 </div>
-                <p className="mb-4 text-sm leading-relaxed text-zinc-500">
+                <p className="mb-5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
                   {project.description}
                 </p>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-3">
                   {project.stack.map((tech) => (
                     <span
                       key={tech}
-                      className="rounded bg-zinc-800 px-2 py-0.5 font-mono text-xs text-zinc-400"
+                      className="rounded bg-black/[0.04] dark:bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs text-neutral-500 dark:text-neutral-400"
                     >
                       {tech}
                     </span>
@@ -156,27 +190,89 @@ export default function Home() {
           </div>
         </section>
 
-        <hr className="border-zinc-800" />
+        <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
 
         {/* Experience */}
-        <section className="py-16">
-          <h2 className="mb-10 text-xs font-medium uppercase tracking-widest text-zinc-600">
+        <section className="py-24">
+          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
             Work
-          </h2>
-          <div className="space-y-6">
-            {experience.map((job) => (
-              <div key={job.company} className="flex items-baseline justify-between gap-4">
-                <span className="font-medium text-zinc-200">{job.company}</span>
-                <span className="text-sm text-zinc-500">{job.role}</span>
+          </p>
+          <div className="space-y-10">
+            {experience.map((job, i) => (
+              <div
+                key={`${job.company}-${i}`}
+                className="scroll-reveal"
+              >
+                <div className="flex items-start justify-between gap-6 mb-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      {job.current && (
+                        <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-emerald-500" />
+                      )}
+                      <span className="font-medium text-black dark:text-white">{job.company}</span>
+                      {job.subtitle && (
+                        <span className="text-xs text-neutral-400 dark:text-neutral-500">· {job.subtitle}</span>
+                      )}
+                    </div>
+                    <p className="mt-0.5 text-sm text-neutral-500">{job.role}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="text-xs text-neutral-400 dark:text-neutral-500">{job.period}</p>
+                    <p className="text-xs text-neutral-400 dark:text-neutral-500">{job.location}</p>
+                  </div>
+                </div>
+                <ul className="space-y-2 pl-4 border-l border-black/[0.06] dark:border-white/[0.06]">
+                  {job.bullets.map((bullet, j) => (
+                    <li key={j} className="text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
+                      {bullet}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
         </section>
+
+        <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
+
+        {/* Education */}
+        <section className="py-24">
+          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
+            Education
+          </p>
+          <div className="scroll-reveal flex items-start justify-between gap-6">
+            <div>
+              <span className="font-medium text-black dark:text-white">University of Waterloo</span>
+              <p className="mt-0.5 text-sm text-neutral-500">BCS Computer Science</p>
+            </div>
+            <div className="shrink-0 text-right">
+              <p className="text-xs text-neutral-400 dark:text-neutral-500">2020–2025</p>
+              <p className="text-xs text-neutral-400 dark:text-neutral-500">Waterloo, ON</p>
+            </div>
+          </div>
+        </section>
+
+        <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
+
+        {/* Skills */}
+        <section className="py-24">
+          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
+            Stack
+          </p>
+          <p className="scroll-reveal font-mono text-sm text-neutral-500 dark:text-neutral-500 leading-relaxed">
+            Go · Python · TypeScript · Kafka · ClickHouse · OpenTelemetry · Kubernetes · AWS
+          </p>
+        </section>
       </main>
 
-      <footer className="border-t border-zinc-800">
-        <div className="mx-auto max-w-3xl px-6 py-8">
-          <p className="text-sm text-zinc-600">Built with Next.js · Tailwind</p>
+      <footer className="relative z-10 border-t border-black/[0.06] dark:border-white/[0.06]">
+        <div className="mx-auto max-w-4xl px-6 py-8 flex items-center justify-between">
+          <p className="text-xs text-neutral-400 dark:text-neutral-500">
+            Built with Next.js · Tailwind
+          </p>
+          <p className="text-xs text-neutral-400 dark:text-neutral-500">
+            © {new Date().getFullYear()} Saad Mukhtar
+          </p>
         </div>
       </footer>
     </div>

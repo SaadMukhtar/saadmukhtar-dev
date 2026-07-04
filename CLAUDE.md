@@ -84,6 +84,10 @@ For multi-step tasks, state a brief plan:
 - Ask before installing a new dependency. Every package adds surface area.
 - Prefer native browser APIs or Next.js built-ins over a library where practical.
 
+## Deployments
+
+Never run `git push` without first testing locally with the dev server and getting explicit user confirmation. Always offer "want to test this locally before I push?" as a checkpoint.
+
 ## End of Task
 
 Always end every completed task with exactly four bullets:

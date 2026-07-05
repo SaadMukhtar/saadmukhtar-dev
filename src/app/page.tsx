@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
@@ -115,19 +116,29 @@ export default function Home() {
             Available · Open to new roles
           </div>
 
-          <h1 className="animate-fade-up anim-delay-1 mb-4 text-6xl font-semibold tracking-tight text-black dark:text-white md:text-7xl">
-            Saad Mukhtar.
-          </h1>
+          {/* Photo + name block */}
+          <div className="animate-fade-up anim-delay-1 flex items-center gap-8 mb-10">
+            <Image
+              src="/pfp.png"
+              alt="Saad Mukhtar"
+              width={120}
+              height={120}
+              className="shrink-0 rounded-full object-cover"
+            />
+            <div>
+              <h1 className="mb-3 text-5xl font-semibold tracking-tight text-black dark:text-white md:text-6xl">
+                Saad Mukhtar.
+              </h1>
+              <p className="mb-2 text-lg text-neutral-600 dark:text-neutral-300">
+                Software Engineer · Distributed Systems · Infrastructure
+              </p>
+              <p className="text-base leading-relaxed text-neutral-600 dark:text-neutral-300">
+                Capital One Software · Tesla · PlayStation · Super.com · UWaterloo CS
+              </p>
+            </div>
+          </div>
 
-          <p className="animate-fade-up anim-delay-2 mb-6 text-xl text-neutral-500">
-            Software Engineer · Distributed Systems · Infrastructure
-          </p>
-
-          <p className="animate-fade-up anim-delay-3 max-w-md text-base leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Capital One Software · Tesla · PlayStation · Super.com · UWaterloo CS
-          </p>
-
-          <div className="animate-fade-up anim-delay-4 mt-10 flex flex-wrap gap-3">
+          <div className="animate-fade-up anim-delay-2 flex flex-wrap gap-3">
             <a
               href="#projects"
               className="inline-flex items-center gap-2 rounded-full bg-black dark:bg-white px-5 py-2.5 text-sm font-medium text-white dark:text-black transition-opacity hover:opacity-75"
@@ -150,7 +161,7 @@ export default function Home() {
 
         {/* Projects */}
         <section id="projects" className="py-24">
-          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
+          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
             Building
           </p>
           <div className="grid sm:grid-cols-2">
@@ -172,14 +183,14 @@ export default function Home() {
                     </span>
                   )}
                 </div>
-                <p className="mb-5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
+                <p className="mb-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
                   {project.description}
                 </p>
                 <div className="flex flex-wrap gap-3">
                   {project.stack.map((tech) => (
                     <span
                       key={tech}
-                      className="rounded bg-black/[0.04] dark:bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs text-neutral-500 dark:text-neutral-400"
+                      className="rounded bg-black/[0.04] dark:bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs text-neutral-600 dark:text-neutral-300"
                     >
                       {tech}
                     </span>
@@ -194,7 +205,7 @@ export default function Home() {
 
         {/* Experience */}
         <section className="py-24">
-          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
+          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
             Work
           </p>
           <div className="space-y-10">
@@ -211,19 +222,19 @@ export default function Home() {
                       )}
                       <span className="font-medium text-black dark:text-white">{job.company}</span>
                       {job.subtitle && (
-                        <span className="text-xs text-neutral-400 dark:text-neutral-500">· {job.subtitle}</span>
+                        <span className="text-xs text-neutral-500 dark:text-neutral-400">· {job.subtitle}</span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-sm text-neutral-500">{job.role}</p>
+                    <p className="mt-0.5 text-sm text-neutral-600 dark:text-neutral-300">{job.role}</p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="text-xs text-neutral-400 dark:text-neutral-500">{job.period}</p>
-                    <p className="text-xs text-neutral-400 dark:text-neutral-500">{job.location}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{job.period}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{job.location}</p>
                   </div>
                 </div>
                 <ul className="space-y-2 pl-4 border-l border-black/[0.06] dark:border-white/[0.06]">
                   {job.bullets.map((bullet, j) => (
-                    <li key={j} className="text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
+                    <li key={j} className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
                       {bullet}
                     </li>
                   ))}
@@ -237,17 +248,17 @@ export default function Home() {
 
         {/* Education */}
         <section className="py-24">
-          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
+          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
             Education
           </p>
           <div className="scroll-reveal flex items-start justify-between gap-6">
             <div>
               <span className="font-medium text-black dark:text-white">University of Waterloo</span>
-              <p className="mt-0.5 text-sm text-neutral-500">BCS Computer Science</p>
+              <p className="mt-0.5 text-sm text-neutral-600 dark:text-neutral-300">BCS Computer Science</p>
             </div>
             <div className="shrink-0 text-right">
-              <p className="text-xs text-neutral-400 dark:text-neutral-500">2020–2025</p>
-              <p className="text-xs text-neutral-400 dark:text-neutral-500">Waterloo, ON</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">2020–2025</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Waterloo, ON</p>
             </div>
           </div>
         </section>
@@ -256,10 +267,10 @@ export default function Home() {
 
         {/* Skills */}
         <section className="py-24">
-          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
+          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
             Stack
           </p>
-          <p className="scroll-reveal font-mono text-sm text-neutral-500 dark:text-neutral-500 leading-relaxed">
+          <p className="scroll-reveal font-mono text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
             Go · Python · TypeScript · Kafka · ClickHouse · OpenTelemetry · Kubernetes · AWS
           </p>
         </section>
@@ -267,10 +278,10 @@ export default function Home() {
 
       <footer className="relative z-10 border-t border-black/[0.06] dark:border-white/[0.06]">
         <div className="mx-auto max-w-4xl px-6 py-8 flex items-center justify-between">
-          <p className="text-xs text-neutral-400 dark:text-neutral-500">
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">
             Built with Next.js · Tailwind
           </p>
-          <p className="text-xs text-neutral-400 dark:text-neutral-500">
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">
             © {new Date().getFullYear()} Saad Mukhtar
           </p>
         </div>

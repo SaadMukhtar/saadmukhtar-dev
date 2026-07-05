@@ -43,76 +43,80 @@ export default function Post() {
           <div className="mb-16 flex items-center gap-4 text-xs text-neutral-400 dark:text-neutral-500">
             <span>July 4, 2026</span>
             <span>·</span>
-            <span>3 min read</span>
+            <span>4 min read</span>
           </div>
 
-          <div className="space-y-10 text-[15px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+          <div className="space-y-10 text-[15px] leading-relaxed text-neutral-600 dark:text-neutral-300">
 
+            {/* Hook */}
             <p>
-              Bought <C>saadmukhtar.dev</C> today. Here&apos;s what I learned setting it up.
+              Bought <C>saadmukhtar.dev</C> today. Goal: get it pointing at my Vercel site.
+              Took about 20 minutes once I understood what was actually happening. Here&apos;s how it works.
             </p>
 
-            {/* Short version */}
+            {/* Background */}
             <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-black dark:text-white">The short version</h2>
-              <p>
-                Your computer speaks IPs, not domain names. DNS is the phonebook that translates between the two.
-                Setting up a custom domain is just updating the phonebook to point at your server.
-              </p>
-              <p>That&apos;s it. Everything below is detail.</p>
+              <h2 className="text-lg font-semibold text-black dark:text-white">Background</h2>
+              <p><B>DNS</B>{" "}— the phonebook of the internet. Translates domain names (<C>saadmukhtar.dev</C>) to IP addresses (<C>76.76.21.21</C>). Every browser request starts with a DNS lookup.</p>
+              <p><B>A record</B>{" "}— maps a domain directly to an IP address.</p>
+              <p><B>CNAME record</B>{" "}— maps a domain to another domain. More flexible — if Vercel&apos;s IP changes, the CNAME still resolves correctly.</p>
+              <p><B>CNAME flattening</B>{" "}— Cloudflare&apos;s trick for using CNAMEs on root domains (the DNS spec doesn&apos;t normally allow this).</p>
+              <p><B>CDN</B>{" "}— a network of servers distributed close to users. Vercel runs one. Cloudflare runs one too.</p>
             </div>
 
-            {/* Two records */}
+            {/* What I did */}
             <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-black dark:text-white">Two records. That&apos;s all.</h2>
-              <p>Vercel needs two DNS records added in Cloudflare:</p>
+              <h2 className="text-lg font-semibold text-black dark:text-white">What I did</h2>
+              <ol className="space-y-2 list-none">
+                <li><B>1.</B>{" "}Bought <C>saadmukhtar.dev</C> on Cloudflare Registrar</li>
+                <li><B>2.</B>{" "}Added the domain in Vercel (Settings → Domains → apex only)</li>
+                <li><B>3.</B>{" "}Copied Vercel&apos;s two CNAME values</li>
+                <li><B>4.</B>{" "}Added both in Cloudflare DNS with proxy <B>off</B>{" "}(grey cloud, not orange)</li>
+                <li><B>5.</B>{" "}Waited ~15 min for DNS propagation</li>
+              </ol>
+              <p>That&apos;s the whole thing.</p>
+            </div>
+
+            {/* Result */}
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold text-black dark:text-white">Result</h2>
+              <p>
+                <C>saadmukhtar.dev</C> is live. Apex and www both resolve. SSL handled automatically by Vercel.
+                No extra config beyond what&apos;s above.
+              </p>
+            </div>
+
+            {/* Deep dive */}
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-black dark:text-white">Deep dive — the confusing parts</h2>
+
+              <p>
+                <B>Why two CNAME records?</B>{" "}One for the apex (<C>@</C>), one for <C>www</C>.
+                They&apos;re technically different addresses — most people treat them as the same thing but DNS doesn&apos;t.
+                Add only the apex in Vercel; it auto-redirects www → apex with a 308.
+              </p>
+
+              <p>
+                <B>Why proxy off?</B>{" "}Cloudflare&apos;s orange cloud routes traffic through their network,
+                which creates SSL conflicts with Vercel&apos;s own CDN. Grey cloud always for Vercel-hosted sites.
+              </p>
+
+              <p>
+                <B>CNAME on a root domain?</B>{" "}The DNS spec says only A records (IPs) are allowed on an apex —
+                CNAMEs are for subdomains. Cloudflare works around this by resolving the CNAME chain down to an IP
+                automatically before responding. That&apos;s CNAME flattening.
+              </p>
+
               <Block>{`@ (apex)   CNAME  →  4cca535debee29c0.vercel-dns-017.com
 www        CNAME  →  4cca535debee29c0.vercel-dns-017.com`}</Block>
+
               <p>
-                <B>Proxy: off.</B>{" "}Grey cloud in Cloudflare, not orange. Vercel has its own CDN —
-                Cloudflare&apos;s proxy creates SSL conflicts. Always grey.
+                <B>&ldquo;Invalid Configuration&rdquo; in Vercel?</B>{" "}Not broken.
+                That&apos;s Vercel waiting to confirm the DNS records exist. On Cloudflare it usually clears in 5–30 min.
+                Refresh and it turns green.
               </p>
-            </div>
 
-            {/* Cloudflare vs Vercel */}
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-black dark:text-white">Cloudflare vs Vercel — two different jobs</h2>
-              <p><B>Cloudflare</B>{" "}manages the phonebook. Buy the domain there, add the DNS records, done.</p>
-              <p><B>Vercel</B>{" "}hosts your site. You also need to add the domain inside Vercel&apos;s dashboard — that&apos;s how it knows which project to serve when traffic arrives.</p>
-              <p>Both sides. Most people miss the Vercel side.</p>
-            </div>
-
-            {/* Apex vs www */}
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-black dark:text-white">Apex vs www</h2>
-              <p><C>saadmukhtar.dev</C> is the apex — the root domain.</p>
-              <p><C>www.saadmukhtar.dev</C> is technically a subdomain. Different address.</p>
-              <p>
-                Add only the apex in Vercel. It automatically redirects{" "}<C>www</C> → apex with a 308.
-                Nobody types <C>www</C> anymore anyway.
-              </p>
-            </div>
-
-            {/* CNAME flattening */}
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-black dark:text-white">CNAME on a root domain?</h2>
-              <p>Normally only A records (IP addresses) are allowed on an apex domain. CNAMEs are for subdomains.</p>
-              <p>
-                Cloudflare gets around this with <B>CNAME flattening</B> — it resolves the CNAME chain
-                down to an IP automatically. So you get the flexibility of a CNAME without breaking DNS rules.
-              </p>
-            </div>
-
-            {/* Invalid config */}
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-black dark:text-white">&ldquo;Invalid Configuration&rdquo; — don&apos;t panic</h2>
-              <p>Vercel shows this the second you add the domain. It doesn&apos;t mean something is broken.</p>
-              <p>It means DNS hasn&apos;t propagated yet. On Cloudflare: usually 5–30 min. Refresh. It turns green.</p>
-            </div>
-
-            {/* What happens */}
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-black dark:text-white">What&apos;s actually happening</h2>
+              <p><B>What actually happens end-to-end:</B></p>
               <Block>{`You type saadmukhtar.dev
     ↓
 DNS lookup → Cloudflare returns Vercel's IP

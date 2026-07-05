@@ -9,10 +9,17 @@ export const metadata: Metadata = {
 
 const posts = [
   {
+    slug: "how-i-write",
+    title: "How I Write",
+    date: "July 5, 2026",
+    description: "The template I use for every blog post — and why each section exists.",
+    readTime: "3 min",
+  },
+  {
     slug: "how-the-internet-finds-your-website",
     title: "How the Internet Found My Website",
     date: "July 4, 2026",
-    description: "Bought a domain today. Here's everything that happened — DNS, Cloudflare, Vercel, and the confusing parts nobody explains.",
+    description: "Bought a domain today. DNS, Cloudflare, Vercel — here's what actually happened.",
     readTime: "4 min",
   },
 ];
@@ -23,7 +30,7 @@ export default function Blog() {
       <Nav />
       <main className="relative z-10 mx-auto max-w-4xl px-6">
         <section className="pb-32 pt-48">
-          <p className="mb-12 text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
+          <p className="mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
             Writing
           </p>
           <div className="space-y-0">
@@ -37,13 +44,13 @@ export default function Blog() {
                   <h2 className="mb-1 font-medium text-black dark:text-white group-hover:underline underline-offset-4">
                     {post.title}
                   </h2>
-                  <p className="text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
+                  <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
                     {post.description}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <p className="text-xs text-neutral-400 dark:text-neutral-500">{post.date}</p>
-                  <p className="text-xs text-neutral-400 dark:text-neutral-500">{post.readTime} read</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">{post.date}</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">{post.readTime} read</p>
                 </div>
               </Link>
             ))}
@@ -52,8 +59,8 @@ export default function Blog() {
       </main>
       <footer className="relative z-10 border-t border-black/[0.06] dark:border-white/[0.06]">
         <div className="mx-auto max-w-4xl px-6 py-8 flex items-center justify-between">
-          <p className="text-xs text-neutral-400 dark:text-neutral-500">Built with Next.js · Tailwind</p>
-          <p className="text-xs text-neutral-400 dark:text-neutral-500">© {new Date().getFullYear()} Saad Mukhtar</p>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">Built with Next.js · Tailwind</p>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">© {new Date().getFullYear()} Saad Mukhtar</p>
         </div>
       </footer>
     </div>

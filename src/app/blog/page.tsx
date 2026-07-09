@@ -9,6 +9,13 @@ export const metadata: Metadata = {
 
 const posts = [
   {
+    slug: "nextjs-vs-react",
+    title: "Next.js vs React — First Time Using It",
+    date: "July 5, 2026",
+    description: "Built this site with Next.js for the first time. What's actually different from plain React — and what an interviewer would ask.",
+    readTime: "5 min",
+  },
+  {
     slug: "how-i-write",
     title: "How I Write",
     date: "July 5, 2026",

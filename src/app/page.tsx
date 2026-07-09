@@ -2,6 +2,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Nav } from "@/components/Nav";
 
+function boldify(text: string): React.ReactNode {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={i} className="font-semibold text-black dark:text-white">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    return part;
+  });
+}
+
 export const metadata: Metadata = {
   title: "Saad Mukhtar",
   description: "Software Engineer — distributed systems, observability, infrastructure",
@@ -43,18 +57,8 @@ const experience: ExperienceEntry[] = [
     location: "San Francisco, CA",
     current: true,
     bullets: [
-      "Diagnosed a 92.5% billing undercounting defect in a distributed OpenTelemetry pipeline; authored the root-cause analysis, led remediation across 20+ sessions with Principal Engineers, and restored metric accuracy, recovering $1M+ in enterprise contract billing.",
-      "Co-architected the telemetry pipeline (OpenTelemetry → S3 → Lambda → ClickHouse) for a multi-tenant observability and billing platform, ingesting 10M+ metrics/day across cloud-hosted and air-gapped Kubernetes.",
-    ],
-  },
-  {
-    company: "Capital One",
-    role: "Software Engineer Intern",
-    period: "Jun–Aug 2024",
-    location: "Dallas, TX",
-    current: false,
-    bullets: [
-      "Built a NestJS API on AWS Fargate (containerized microservices, CI/CD, auth) to accelerate read-heavy SailPoint workflows, eliminating 500+ daily support tickets for 2,000+ engineers.",
+      "Engineered a **20x** API latency reduction (11s → 500ms) on a **4.9B-row** ClickHouse cluster via table partitioning, parallel query execution in Go, materialized columns, and hash-based GROUP BY.",
+      "Diagnosed a **92.5%** billing undercounting defect from incorrect OpenTelemetry metric aggregation; redesigned ClickHouse GROUP BY across all OTel identity dimensions (name, attributes, resource attributes, instrumentation scope), recovering **$1M+** in enterprise contract billing.",
     ],
   },
   {
@@ -64,7 +68,8 @@ const experience: ExperienceEntry[] = [
     location: "Palo Alto, CA",
     current: false,
     bullets: [
-      "Engineered a Python backend for cryptographic signature verification of safety-critical vehicle firmware, integrating build system APIs and secure key services to protect 1M+ updates per release.",
+      "Extended Tesla's Fused OTA test suite with production signing validation for ECU binary files across all platforms, preventing unsigned firmware releases that could cause Vehicle Off Road (VOR) events across **1M+** updates per release.",
+      "Built a cross-platform Canbase link layer backend (TCAN, UDP CAN, MAC-CAN) enabling Mac-native ECU access, eliminating the Windows VM dependency for firmware and manufacturing engineering teams.",
     ],
   },
   {
@@ -74,27 +79,19 @@ const experience: ExperienceEntry[] = [
     location: "Remote",
     current: false,
     bullets: [
-      "Won 1st place in company hackathon by building an OpenAI-powered itinerary generator projected to drive $200K+ in ARR through personalized booking recommendations.",
+      "Built Super+ (Super.com's flagship membership) across Flask/PostgreSQL and React with Braintree webhook idempotent reconciliation and LaunchDarkly feature-flagged rollouts; now driving ~**$180M ARR** across **950K+** members.",
+      "Built fraud detection observability from scratch using DataDog; instrumented the Flask microservice with structured logs, metrics, and alerting, cutting time-to-detect for fraud events from **30+ min to near real-time**.",
     ],
   },
   {
     company: "PlayStation",
     role: "Software Developer Intern",
-    period: "Sep–Dec 2022",
+    period: "Jan–Apr 2022 · Sep–Dec 2022",
     location: "Remote",
     current: false,
     bullets: [
-      "Shipped cross-platform React Native features (TypeScript) for the PS4/PS5 subscription tier launch, contributing to a rollout generating $600M+ annual revenue across 10M+ users.",
-    ],
-  },
-  {
-    company: "PlayStation",
-    role: "Software Developer in Test Intern",
-    period: "Jan–Apr 2022",
-    location: "Remote",
-    current: false,
-    bullets: [
-      "Designed and built a now-patented PS5 calendar feature in React Native; uncovered 16+ critical bugs affecting 40M+ users through PS4 Python test automation expansion.",
+      "Designed and built a now-patented PS5 calendar feature in React Native; expanded Python test automation on PS4 to catch **16+** critical bugs before they shipped to a **40M+** user platform.",
+      "Shipped tier-based subscription UI across PS5 (React Native) and PS4 (Vanilla JS) for the PS Plus redesign; coordinated with backend and design teams on API contracts and content flows, part of a launch generating **$600M+** annual revenue.",
     ],
   },
 ];
@@ -235,7 +232,7 @@ export default function Home() {
                 <ul className="space-y-2 pl-4 border-l border-black/[0.06] dark:border-white/[0.06]">
                   {job.bullets.map((bullet, j) => (
                     <li key={j} className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-                      {bullet}
+                      {boldify(bullet)}
                     </li>
                   ))}
                 </ul>

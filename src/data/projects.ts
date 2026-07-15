@@ -85,7 +85,7 @@ export const projects: Project[] = [
   {
     name: "Job Queue",
     description:
-      "Distributed job queue from scratch — DLQ, retry policies, autoscaling workers, async concurrency control",
+      "Production-grade distributed job queue from scratch — DLQ, retry policies, autoscaling workers, async concurrency control",
     stack: ["Go", "Redis", "PostgreSQL"],
     status: "planned",
     niche: "queues",

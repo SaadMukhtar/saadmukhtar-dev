@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { Nav } from "@/components/Nav";
+import { projects } from "@/data/projects";
 
 function boldify(text: string): React.ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
@@ -21,22 +23,7 @@ export const metadata: Metadata = {
   description: "Software Engineer — distributed systems, observability, infrastructure",
 };
 
-type Project = {
-  name: string;
-  description: string;
-  stack: string[];
-  status: "building" | "planned";
-};
-
-const projects: Project[] = [
-  {
-    name: "Observability Platform",
-    description:
-      "End-to-end telemetry — metrics, logs, traces — at high write throughput with a query engine and dashboard",
-    stack: ["Go", "Kafka", "ClickHouse", "OpenTelemetry"],
-    status: "building",
-  },
-];
+const featuredProjects = projects.filter((p) => p.featured);
 
 type ExperienceEntry = {
   company: string;
@@ -162,11 +149,14 @@ export default function Home() {
             Building
           </p>
           <div className="grid sm:grid-cols-2">
-            {projects.map((project) => (
+            {featuredProjects.map((project) => (
               <div
                 key={project.name}
                 className="scroll-reveal group border border-black/[0.10] dark:border-white/[0.10] p-6 transition-all duration-200 hover:-translate-y-0.5 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
               >
+                <p className="mb-1 font-mono text-xs text-neutral-500 dark:text-neutral-500">
+                  {project.niche}
+                </p>
                 <div className="mb-2 flex items-start justify-between gap-4">
                   <h3 className="font-medium text-black dark:text-white">{project.name}</h3>
                   {project.status === "building" ? (
@@ -195,6 +185,15 @@ export default function Home() {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="scroll-reveal mt-8">
+            <Link
+              href="/projects"
+              className="inline-flex items-center gap-1.5 text-sm text-neutral-600 dark:text-neutral-300 transition-colors hover:text-black dark:hover:text-white"
+            >
+              See all projects
+              <span aria-hidden="true">→</span>
+            </Link>
           </div>
         </section>
 

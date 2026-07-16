@@ -6,6 +6,7 @@ import { ThemeToggle } from "./ThemeToggle";
 
 const links = [
   { label: "Projects", href: "/projects" },
+  { label: "SD Lab", href: "/system-design-lab" },
   { label: "Writing", href: "/blog" },
   { label: "GitHub", href: "https://github.com/saadmukhtar" },
   { label: "LinkedIn", href: "https://linkedin.com/in/saad-mukhtar" },
@@ -29,7 +30,7 @@ export function Nav() {
                 href={link.href}
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
-                className={`group relative text-sm transition-colors hover:text-black dark:hover:text-white ${
+                className={`group relative whitespace-nowrap text-sm transition-colors hover:text-black dark:hover:text-white ${
                   isActive
                     ? "text-black dark:text-white"
                     : "text-neutral-500 dark:text-neutral-400"

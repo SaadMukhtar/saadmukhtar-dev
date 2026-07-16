@@ -49,6 +49,62 @@ export const conceptFlashcards: ConceptFlashcard[] = [
       "A single point of failure is any one component whose failure takes down the whole system, even if everything else is redundant. The obvious form is an un-replicated database or a single application server. The subtle form: teams replicate a service but route all traffic through one load balancer, or replicate a database but have every replica depend on one shared config service, secrets store, or DNS provider — redundancy at one layer undone by a shared dependency at another. Finding SPOFs means tracing every dependency of every 'redundant' component, not just counting instances.",
     category: "Fundamentals",
   },
+  {
+    id: "cpu-bound-vs-io-bound",
+    term: "CPU-bound vs I/O-bound",
+    prompt: "What's the difference between a CPU-bound and an I/O-bound workload, and why does adding more threads only help one of them?",
+    answer:
+      "A CPU-bound workload spends most of its time doing actual computation — it's limited by how many cores are available, so more threads than cores just adds context-switching overhead without more throughput. An I/O-bound workload spends most of its time waiting on something external (disk, network, a database) — the CPU is idle during that wait, so more threads (or async I/O) let you overlap many waits at once, dramatically increasing throughput even on a single core. Misidentifying which one you have leads to the wrong fix: throwing threads at a CPU-bound problem, or CPU cores at an I/O-bound one.",
+    category: "Fundamentals",
+  },
+  {
+    id: "concurrency-vs-parallelism",
+    term: "Concurrency vs parallelism",
+    prompt: "What's the difference between concurrency and parallelism?",
+    answer:
+      "Concurrency is structuring a program to handle multiple tasks in progress at once, making progress by interleaving — on a single core, this means switching between tasks, not literally running them simultaneously. Parallelism is actually executing multiple tasks at the exact same instant, which requires multiple cores or machines. You can have concurrency without parallelism (a single-threaded event loop juggling many I/O-bound tasks), and parallelism without much concurrency (one tight computation split across cores). Concurrency is about program structure and correctness (avoiding races); parallelism is purely about throughput.",
+    category: "Fundamentals",
+  },
+  {
+    id: "stateless-services",
+    term: "Stateless services",
+    prompt: "Why are stateless application servers so much easier to scale horizontally than stateful ones?",
+    answer:
+      "A stateless service keeps no client-specific data in memory between requests — any instance can handle any request, so a load balancer can route freely and you can add or remove instances without losing anything. A stateful service (e.g. holding a session or WebSocket connection in memory) ties a client to one instance, complicating load balancing (needs sticky sessions) and making scaling riskier (removing an instance drops its state). The usual fix is pushing state out of the app server into a shared store (Redis, a database) so the app tier itself stays stateless.",
+    category: "Fundamentals",
+  },
+  {
+    id: "monolith-vs-microservices",
+    term: "Monolith vs microservices",
+    prompt: "What's the real tradeoff between a monolith and microservices — not just 'microservices scale better'?",
+    answer:
+      "A monolith is simpler to develop, test, and deploy as one unit — no network calls between components — but it forces every part of the system to scale, deploy, and use the same stack together, even if only one piece needs to. Microservices let each service scale and deploy independently, but every call that used to be a local function call becomes a network call, introducing latency, partial-failure modes, and real operational complexity (service discovery, distributed tracing, versioning between services). It's a trade of development simplicity for independent scalability — worth it when parts of the system have genuinely different load/team needs, costly when they don't.",
+    category: "Fundamentals",
+  },
+  {
+    id: "functional-partitioning",
+    term: "Functional partitioning",
+    prompt: "What is functional partitioning, and how is it different from sharding a database?",
+    answer:
+      "Functional partitioning splits a system by responsibility — the orders service, the payments service, the search service each on their own infrastructure with their own database — so different functions scale and fail independently. Sharding splits one function's data (e.g. one big orders table) across multiple identical machines by a key like user ID, purely to spread volume, not responsibility. Large systems typically do both: functional partitioning first to separate concerns into services, then sharding within a service if it individually outgrows a single database.",
+    category: "Fundamentals",
+  },
+  {
+    id: "queue-based-load-leveling",
+    term: "Queue-based load leveling",
+    prompt: "What problem does putting a queue between a producer and a consumer solve?",
+    answer:
+      "Without a queue, a burst of incoming work has to be handled the instant it arrives, forcing the consumer to be provisioned for peak load at all times. A queue absorbs the burst — producers write to it quickly and move on, while consumers pull at a sustainable, steady rate, smoothing a spiky arrival pattern into level, predictable processing. The tradeoff is added latency (work waits in the queue instead of being processed immediately) and the need to monitor the backlog, since an ever-growing queue means you're falling behind, not that the problem is solved.",
+    category: "Fundamentals",
+  },
+  {
+    id: "liveness-vs-readiness-probes",
+    term: "Liveness vs readiness probes",
+    prompt: "What's the difference between a liveness probe and a readiness probe, and what goes wrong if you only have one?",
+    answer:
+      "A liveness probe answers 'is this process still running correctly, or should it be restarted' (e.g. hasn't deadlocked). A readiness probe answers 'is this instance able to handle traffic right now' (e.g. still warming up, or a dependency is temporarily unreachable). With only a liveness check, an instance that's alive but not ready keeps receiving traffic it can't serve, causing errors. With only a readiness check, a genuinely hung process that never recovers just sits marked 'not ready' forever instead of being restarted.",
+    category: "Fundamentals",
+  },
 
   // Networking
   {
@@ -91,6 +147,62 @@ export const conceptFlashcards: ConceptFlashcard[] = [
       "Polling: the client repeatedly asks 'anything new?' on a fixed interval — simple, but wastes requests when nothing's changed and adds latency up to the polling interval. Long-polling: the client's request is held open by the server until there's new data or a timeout, then immediately re-requested — lower latency with fewer wasted round-trips, but still pays full HTTP overhead per update and ties up a connection while waiting. WebSockets: a single persistent, full-duplex connection stays open and the server pushes updates instantly with no per-message HTTP overhead — best latency and efficiency, at the cost of managing long-lived stateful connections, which changes how you load-balance the server tier since a client is now pinned to whichever server holds its socket.",
     category: "Networking",
   },
+  {
+    id: "http1-vs-http2-vs-http3",
+    term: "HTTP/1.1 vs HTTP/2 vs HTTP/3",
+    prompt: "What's the key improvement each of HTTP/2 and HTTP/3 made over its predecessor?",
+    answer:
+      "HTTP/1.1 opens one request per connection at a time (or several parallel connections as a workaround), so many small assets mean many round-trips. HTTP/2 introduced multiplexing — many requests share a single TCP connection concurrently, cutting overhead. HTTP/3 replaces TCP with QUIC (built on UDP), solving head-of-line blocking at the transport level: in HTTP/2, one lost packet stalls every multiplexed stream on that TCP connection until retransmitted, while QUIC's independent streams mean a lost packet only stalls the one stream it belongs to.",
+    category: "Networking",
+  },
+  {
+    id: "tls-handshake",
+    term: "TLS handshake",
+    prompt: "At a high level, what happens during a TLS handshake, and why does it add latency before any actual data is sent?",
+    answer:
+      "The client and server exchange supported cipher suites, the server presents its certificate (verified against a certificate authority), and both sides perform a key exchange to agree on a shared symmetric key for the session — all before a single byte of application data is sent. This costs at least one extra round-trip (TLS 1.3 reduced it to one; TLS 1.2 needed two), which is why connection reuse (keep-alive) and session resumption matter so much — paying the handshake cost once and reusing the connection avoids repeating it on every request.",
+    category: "Networking",
+  },
+  {
+    id: "reverse-proxy-vs-forward-proxy",
+    term: "Reverse proxy vs forward proxy",
+    prompt: "What's the difference between a forward proxy and a reverse proxy?",
+    answer:
+      "A forward proxy sits in front of clients and makes requests on their behalf to the wider internet — it hides the client's identity from the server (e.g. a corporate proxy, or a VPN). A reverse proxy sits in front of servers and receives requests on their behalf from clients — it hides the server's identity and internal topology, and is what load balancers, API gateways, and CDNs typically are: from the client's point of view, the reverse proxy IS the server, even though it's routing to one of many backend instances.",
+    category: "Networking",
+  },
+  {
+    id: "anycast-routing",
+    term: "Anycast routing",
+    prompt: "What is anycast routing, and how does it help CDNs and public DNS resolvers?",
+    answer:
+      "Anycast lets multiple physically distinct servers around the world share the same IP address; the network routing layer (BGP) automatically sends a client's request to whichever announced location is 'closest' by network topology, with no application-level logic involved. This is how public DNS resolvers and CDN edge networks serve a single IP globally while actually routing each user to a nearby data center — a networking-layer trick that makes 'route to the nearest server' essentially free, instead of requiring client-side geolocation logic.",
+    category: "Networking",
+  },
+  {
+    id: "nat",
+    term: "NAT (Network Address Translation)",
+    prompt: "What does NAT do, and why does it complicate direct peer-to-peer connections?",
+    answer:
+      "NAT lets many devices on a private network share a single public IP address, translating between private addresses and the one public address at the router. It complicates peer-to-peer connections because a device behind NAT has no publicly reachable address of its own — an outside peer can't simply connect to it, since incoming connections need the NAT to already have an outbound mapping to route through. This is why peer-to-peer systems (video calls, some game networking) rely on techniques like STUN/TURN or hole-punching to establish a connection through NAT, or fall back to relaying traffic through a public server entirely.",
+    category: "Networking",
+  },
+  {
+    id: "service-mesh",
+    term: "Service mesh / sidecar proxy",
+    prompt: "What problem does a service mesh (like Istio, using Envoy sidecars) solve for microservices?",
+    answer:
+      "Every service in a microservices system needs the same cross-cutting concerns — retries, timeouts, TLS between services, load balancing, observability — and implementing that consistently inside every service's own code is repetitive and easy to get inconsistent. A service mesh runs a small proxy ('sidecar') alongside each service instance that intercepts all its network traffic and handles those concerns uniformly and transparently, so individual services don't implement retry logic or mutual TLS themselves — the mesh enforces it consistently fleet-wide and gives centralized visibility into traffic between every service.",
+    category: "Networking",
+  },
+  {
+    id: "connection-pooling",
+    term: "Connection pooling",
+    prompt: "Why does reusing a pool of open connections matter more than it might seem?",
+    answer:
+      "Establishing a new TCP connection (and for HTTPS, a TLS handshake on top) has real latency and CPU cost — doing it fresh for every single request adds that overhead to every request's latency and burns server resources setting up and tearing down connections constantly. A connection pool keeps a set of already-established connections open and reuses them across requests, paying the setup cost once instead of per-request — this matters enormously for calls to databases and other backend services made very frequently, where connection setup overhead can otherwise dominate the actual request cost.",
+    category: "Networking",
+  },
 
   // API Design
   {
@@ -131,6 +243,62 @@ export const conceptFlashcards: ConceptFlashcard[] = [
     prompt: "What should an API actually return to a client that's been rate-limited, beyond just an error code?",
     answer:
       "A bare '429 Too Many Requests' with no other information forces the client to guess when to retry, usually leading to it hammering the API again immediately or retrying far too conservatively. A well-designed rate-limit response includes a Retry-After header telling the client exactly how long to wait, plus ideally the current limit, remaining quota, and reset time (X-RateLimit-Limit / X-RateLimit-Remaining / X-RateLimit-Reset), so well-behaved clients can throttle themselves proactively instead of only reacting after being rejected.",
+    category: "API Design",
+  },
+  {
+    id: "webhook-vs-polling",
+    term: "Webhooks vs polling",
+    prompt: "When integrating two systems, what's the tradeoff between having one system poll the other versus using a webhook?",
+    answer:
+      "Polling means the consumer repeatedly asks 'anything new?' on an interval — simple to implement on both sides, but wastes requests when nothing's changed and adds latency up to the poll interval. A webhook flips the direction: the producer calls the consumer's URL the instant an event happens, giving near-instant delivery with no wasted requests, but it requires the consumer to expose a reliably available public endpoint, and the producer now has to handle delivery failures (retries, ordering, duplicate delivery) since it's pushing rather than being asked.",
+    category: "API Design",
+  },
+  {
+    id: "hateoas",
+    term: "HATEOAS",
+    prompt: "What is HATEOAS, and why do most APIs that call themselves 'RESTful' actually skip it?",
+    answer:
+      "HATEOAS (Hypermedia as the Engine of Application State) means API responses include links describing what actions/resources are available next, so a client can navigate the API dynamically without hardcoding URL structures — similar to how a person browses a website by following links rather than memorizing URLs. Most real-world 'REST' APIs skip it because it adds real complexity (every response needs to compute and embed valid next-action links) for a benefit that mostly matters when clients are generic/unknown in advance; most API clients are written against fixed documentation anyway, so the dynamic-discovery benefit rarely justifies the cost.",
+    category: "API Design",
+  },
+  {
+    id: "bulk-batch-endpoints",
+    term: "Bulk/batch endpoints",
+    prompt: "Why would you add a batch endpoint (e.g. POST /users/batch) instead of just calling the single-resource endpoint many times?",
+    answer:
+      "Each API call pays fixed overhead — a network round-trip, TLS/connection cost, authentication checks — independent of how much actual work it does. Calling a single-item endpoint 1,000 times pays that overhead 1,000 times; a batch endpoint that accepts 1,000 items in one request pays it once, which matters enormously for clients doing bulk operations. The tradeoff is batch endpoints need their own error-handling model — deciding whether a batch is all-or-nothing or reports per-item success/failure — which is more complex than a single endpoint's simple success/fail response.",
+    category: "API Design",
+  },
+  {
+    id: "api-gateway",
+    term: "API gateway",
+    prompt: "What does an API gateway centralize that would otherwise be duplicated across every backend service?",
+    answer:
+      "An API gateway sits in front of a system's services and handles concerns that are the same for every request regardless of which backend service ultimately handles it: authentication, rate limiting, request logging, TLS termination, and routing to the correct backend service. Without a gateway, every individual service would need to implement its own auth checks and rate limiting consistently, which is repetitive and risky if one service gets it slightly wrong. The gateway is also where client-facing API versioning gets handled, decoupling the public API surface from however the backend services are actually organized internally.",
+    category: "API Design",
+  },
+  {
+    id: "optimistic-locking-etags",
+    term: "Optimistic locking / ETags",
+    prompt: "How does optimistic locking (e.g. via an ETag or version number) prevent two clients from silently overwriting each other's updates?",
+    answer:
+      "Each resource carries a version identifier (a version number or an ETag hash) that changes every time it's updated. A client that wants to update the resource must include the version it last read; the server only applies the update if that version still matches the current one, and rejects it (usually with a 409 Conflict) if someone else updated the resource in between. This lets clients read and edit concurrently without an explicit lock ('optimistic' — assuming conflicts are rare), at the cost of the client needing to handle a rejected update by re-fetching the latest version and retrying, rather than the server blocking one client while another edits.",
+    category: "API Design",
+  },
+  {
+    id: "schema-evolution",
+    term: "Backward-compatible schema evolution",
+    prompt: "What makes a change to an API's data schema (e.g. a protobuf message) backward-compatible versus breaking?",
+    answer:
+      "Adding a new optional field is backward-compatible — old clients simply ignore a field they don't know about, and new clients treat its absence as a sensible default. Removing a field, renaming it, or changing its type or meaning is breaking — old clients either fail to parse the new data or, worse, silently misinterpret it. The practical rule most schema systems (protobuf, Avro) enforce: only ever add new optional fields, never remove, rename, or repurpose an existing field, and if a field is truly obsolete, stop populating it rather than deleting its definition.",
+    category: "API Design",
+  },
+  {
+    id: "long-running-operations",
+    term: "Long-running operations pattern (202 + polling)",
+    prompt: "How should an API handle a request that takes minutes to complete (e.g. generating a large report), instead of holding the HTTP connection open the whole time?",
+    answer:
+      "Instead of blocking the request until the work finishes (risking client/proxy timeouts and tying up a connection for minutes), the API immediately returns 202 Accepted with a status URL for the operation, and the client polls that URL (or the server notifies via webhook) until it reports completion, at which point the result is fetched separately. This decouples request latency from actual work duration entirely, and survives the client disconnecting and reconnecting later, since the operation's state lives server-side, not in the original HTTP connection.",
     category: "API Design",
   },
 
@@ -202,6 +370,54 @@ export const conceptFlashcards: ConceptFlashcard[] = [
     category: "Databases",
     relatedScenarioSlug: "distributed-id-generator",
   },
+  {
+    id: "read-replicas-vs-write-scaling",
+    term: "Read replicas vs write scaling",
+    prompt: "Why don't read replicas help you scale write throughput, even though you can add as many of them as you want?",
+    answer:
+      "A read replica is a copy that receives and applies the same writes as the primary — it doesn't do any of the actual write work independently, it just re-executes what the primary already did. Adding more replicas adds more read capacity, but every replica still has to apply every single write, so the primary (and each replica) is still bottlenecked by however many writes per second one machine can apply. Scaling write throughput requires a fundamentally different approach — sharding the writes across multiple independent primaries, not adding more copies of one primary's data.",
+    category: "Databases",
+  },
+  {
+    id: "mvcc",
+    term: "MVCC (Multi-Version Concurrency Control)",
+    prompt: "What problem does MVCC solve, and how does it let readers and writers avoid blocking each other?",
+    answer:
+      "Without MVCC, a reader and a writer touching the same row typically need locks to avoid seeing a half-written update, which means readers can block on writers and vice versa. MVCC instead keeps multiple versions of a row: a writer creates a new version rather than overwriting the old one in place, and a reader that started before the write simply keeps seeing the version that existed at the start of its transaction. This lets reads never block writes and writes never block reads (though writers can still conflict with other writers), at the cost of needing to periodically clean up old row versions no active transaction still needs (e.g. Postgres's VACUUM).",
+    category: "Databases",
+  },
+  {
+    id: "write-ahead-log",
+    term: "Write-ahead log (WAL)",
+    prompt: "What is a write-ahead log, and why does writing to it before updating the actual data make the database more durable?",
+    answer:
+      "Before applying a change to the actual data files, the database first appends a record of that change to an append-only log on disk. If the database crashes mid-write, it can replay the WAL on restart to redo any committed changes that hadn't yet been fully applied, guaranteeing no committed transaction is lost. Appending to a sequential log is also much faster than writing to scattered locations in the main data files, so WAL is both a durability mechanism and a performance one — the durable, sequential log write can be acknowledged quickly, while the slower, random-access data-file updates happen afterward.",
+    category: "Databases",
+  },
+  {
+    id: "denormalization",
+    term: "Denormalization",
+    prompt: "What is denormalization, and what does it trade away in exchange for faster reads?",
+    answer:
+      "Normalization organizes data to avoid duplication (e.g. storing a user's name once, referenced by ID everywhere). Denormalization deliberately duplicates some of that data (e.g. storing a copy of the author's name directly on every post, instead of joining to a users table every time) to make reads faster — no join needed. The cost is write complexity and consistency risk: if a user changes their name, every duplicated copy needs updating too, and missing one silently goes stale. It's a deliberate tradeoff made when reads vastly outnumber writes and join cost is a real bottleneck, not a default choice.",
+    category: "Databases",
+  },
+  {
+    id: "composite-index-order",
+    term: "Composite index column order",
+    prompt: "Why does the order of columns in a composite (multi-column) index matter?",
+    answer:
+      "A composite index on (A, B) is physically sorted first by A, then by B within each A value — so it can efficiently serve queries filtering on A alone, or on A and B together, but not a query filtering on B alone, since B's values aren't sorted globally, only within each A group. This is why the most selective or most commonly-filtered-alone column usually goes first in a composite index, and why simply having 'an index on the right columns' isn't enough — the order has to match how the columns are actually queried.",
+    category: "Databases",
+  },
+  {
+    id: "two-phase-commit",
+    term: "Two-phase commit (2PC)",
+    prompt: "What problem does two-phase commit solve, and what's its biggest practical weakness?",
+    answer:
+      "2PC coordinates a transaction across multiple independent databases/services so that either all of them commit or all of them roll back. In the 'prepare' phase, a coordinator asks every participant to lock in and confirm it can commit; only if everyone agrees does the coordinator tell everyone to actually commit. Its biggest weakness: if the coordinator crashes after participants have prepared but before being told to commit, every participant is stuck holding locks indefinitely, unable to independently decide whether to commit or abort — exactly why many distributed systems avoid 2PC in favor of eventual consistency or saga-style compensating transactions instead.",
+    category: "Databases",
+  },
 
   // Distributed Systems & Consistency
   {
@@ -233,7 +449,7 @@ export const conceptFlashcards: ConceptFlashcard[] = [
     term: "Consensus algorithms (Paxos/Raft)",
     prompt: "What problem do consensus algorithms like Paxos or Raft actually solve, in one sentence, and why is it hard?",
     answer:
-      "They let a group of distributed nodes agree on a single value or ordering of operations even when some nodes are slow, crash, or messages are delayed or lost — for example, agreeing which node is the current leader, or the order log entries were committed in. It's hard because in an asynchronous network you can't reliably distinguish a slow node from a dead one, so a naive majority vote can produce split-brain (two nodes both think they're the leader) unless the protocol carefully handles term numbers, quorums, and message ordering — exactly what Raft's leader-election-with-terms and log-replication (or Paxos's proposal/promise rounds) is built to guarantee.",
+      "They let a group of distributed nodes agree on a single value or ordering of operations even when some nodes are slow, crash, or messages are delayed or lost — for example, agreeing which node is the current leader, or the order log entries were committed in. It's hard because in an asynchronous network you can't reliably distinguish a slow node from a dead one, so a naive majority vote can produce split-brain unless the protocol carefully handles term numbers, quorums, and message ordering — exactly what Raft's leader-election-with-terms and log-replication (or Paxos's proposal/promise rounds) is built to guarantee.",
     category: "Distributed Systems & Consistency",
   },
   {
@@ -241,7 +457,63 @@ export const conceptFlashcards: ConceptFlashcard[] = [
     term: "Eventual consistency",
     prompt: "What does 'eventual consistency' actually guarantee (and not guarantee)?",
     answer:
-      "It guarantees that if no new writes occur, all replicas will eventually converge to the same value — it does not guarantee when that happens, nor that reads in the meantime see any particular intermediate value (you might read old data, or see values arrive out of the order they were written, depending on the system). It's a much weaker guarantee than strong consistency, chosen to keep a system available and low-latency during normal operation and network partitions — the tradeoff only makes sense when your application can tolerate temporarily stale reads (a like count) rather than needing them (an account balance).",
+      "It guarantees that if no new writes occur, all replicas will eventually converge to the same value — it does not guarantee when that happens, nor that reads in the meantime see any particular intermediate value. It's a much weaker guarantee than strong consistency, chosen to keep a system available and low-latency during normal operation and network partitions — the tradeoff only makes sense when your application can tolerate temporarily stale reads (a like count) rather than needing them (an account balance).",
+    category: "Distributed Systems & Consistency",
+  },
+  {
+    id: "vector-clocks",
+    term: "Vector clocks",
+    prompt: "What problem do vector clocks solve when there's no single global clock to order events across machines?",
+    answer:
+      "Physical clocks on different machines drift and can't be perfectly synchronized, so you can't just compare timestamps to know which of two events on different machines happened first. A vector clock is a per-node counter vector that each node increments on its own events and merges with counters received from other nodes' messages, letting the system determine whether one event definitely happened before another (causally), or whether they're concurrent — without ever needing synchronized physical time. This is the mechanism many distributed databases use to detect conflicting concurrent writes rather than guessing based on wall-clock timestamps.",
+    category: "Distributed Systems & Consistency",
+  },
+  {
+    id: "gossip-protocol",
+    term: "Gossip protocol",
+    prompt: "How does a gossip protocol spread information (like cluster membership) across a large number of nodes without a central coordinator?",
+    answer:
+      "Each node periodically picks a few random peers and shares what it currently knows (e.g. which nodes are alive, recent updates); those peers do the same with their own random peers, and so on. Information spreads exponentially — like a rumor — reaching the whole cluster in only a few rounds, without any single node needing to talk to everyone or a central coordinator being involved at all. This makes gossip resilient (no single point of failure, tolerates nodes coming and going) at the cost of only eventual, not immediate, convergence.",
+    category: "Distributed Systems & Consistency",
+  },
+  {
+    id: "quorum-reads-writes",
+    term: "Quorum reads/writes",
+    prompt: "What does it mean for a distributed data store to require a 'quorum,' and how does R + W > N guarantee strong-ish consistency?",
+    answer:
+      "With N total replicas, a write is only acknowledged once it succeeds on W of them, and a read only returns once it's collected responses from R of them. If R + W > N, any read quorum and any write quorum must overlap on at least one replica, guaranteeing a read will always see the most recent acknowledged write somewhere in the replicas it consults, even without every replica being up-to-date immediately. This is a tunable middle ground between full consistency and eventual consistency — trading write latency against read latency by adjusting how W and R are split, as long as their sum still exceeds N.",
+    category: "Distributed Systems & Consistency",
+  },
+  {
+    id: "split-brain",
+    term: "Split-brain",
+    prompt: "What is split-brain in a distributed system, and how does a properly-designed consensus protocol prevent it?",
+    answer:
+      "Split-brain happens when a network partition causes two disjoint groups of nodes to each believe they're the legitimate leader/primary and both independently accept writes, leading to diverging, conflicting state. A properly-designed consensus protocol (Raft, Paxos) prevents this by requiring a leader to be confirmed by a strict majority quorum of all nodes — since two disjoint groups can't both contain a majority of the same total node count, at most one side can ever have a legitimate leader, and the minority side is forced to stop accepting writes rather than proceeding independently.",
+    category: "Distributed Systems & Consistency",
+  },
+  {
+    id: "leader-election",
+    term: "Leader election",
+    prompt: "Why do many distributed systems need a single elected leader, and what happens when the leader fails?",
+    answer:
+      "A single leader gives the system one authoritative place to make ordering decisions without needing every node to coordinate on every operation, far simpler and faster than requiring consensus for every single request. When the leader fails, the remaining nodes detect it (typically via missed heartbeats) and run an election — using a protocol like Raft — to agree on a new leader, usually preferring whichever surviving node has the most up-to-date log, so no already-committed data is lost in the handover.",
+    category: "Distributed Systems & Consistency",
+  },
+  {
+    id: "distributed-locks",
+    term: "Distributed locks",
+    prompt: "Why are distributed locks (e.g. using Redis) considered risky, and what specifically can go wrong?",
+    answer:
+      "A distributed lock is meant to guarantee only one process can hold a resource at a time, but the guarantee is only as strong as the assumptions behind it — if a process holding the lock pauses unexpectedly (a long GC pause, a slow disk write) past the lock's expiry, the lock can be released and re-acquired by another process while the first is still running and believes it holds the lock, leading to two processes both acting with exclusive access. This is why naive distributed locking is considered unsafe for correctness-critical operations without safeguards like fencing tokens, which let the resource itself reject stale operations from a process that no longer legitimately holds the lock.",
+    category: "Distributed Systems & Consistency",
+  },
+  {
+    id: "saga-pattern",
+    term: "Saga pattern",
+    prompt: "How does the saga pattern handle a transaction that spans multiple independent microservices, without using a distributed transaction like 2PC?",
+    answer:
+      "Instead of one atomic transaction across services, a saga breaks the operation into a sequence of local transactions, each in one service, with each step publishing an event that triggers the next. If a step partway through fails, the saga doesn't roll back atomically — it runs compensating transactions that explicitly undo the effects of steps that already succeeded (e.g. a 'cancel reservation' step to undo an earlier 'reserve inventory' step). This avoids 2PC's coordinator/locking problems, at the cost of needing the system designed around eventual consistency and well-defined compensating actions for every step.",
     category: "Distributed Systems & Consistency",
   },
 
@@ -276,6 +548,70 @@ export const conceptFlashcards: ConceptFlashcard[] = [
     prompt: "What's the difference between LRU and LFU cache eviction, and when does LRU get it wrong?",
     answer:
       "LRU (Least Recently Used) evicts whichever entry hasn't been accessed in the longest time; LFU (Least Frequently Used) evicts whichever entry has been accessed the fewest total times. LRU gets it wrong for something accessed very frequently but with an occasional gap — a burst of unrelated one-off requests can evict a genuinely hot item just because it hasn't been touched in the last few seconds. LFU handles that better since frequency is a longer memory than recency, but has its own failure mode: an item that was extremely popular once but is no longer relevant can stay stuck in the cache indefinitely on historical count, crowding out newly-popular items.",
+    category: "Caching & Performance",
+  },
+  {
+    id: "read-through-cache",
+    term: "Read-through cache",
+    prompt: "How is a read-through cache different from cache-aside, and what does it simplify for the application?",
+    answer:
+      "In cache-aside, the application itself checks the cache, and on a miss, queries the database and writes the result back into the cache. In a read-through cache, the cache sits transparently in front of the database and handles that miss-then-populate logic itself — the application only ever talks to the cache. This simplifies application code (no manual cache-population logic scattered everywhere) at the cost of needing a cache layer smart enough to know how to fetch from the underlying store on a miss, rather than a plain key-value cache.",
+    category: "Caching & Performance",
+  },
+  {
+    id: "ttl-vs-explicit-invalidation",
+    term: "TTL vs explicit invalidation",
+    prompt: "What's the tradeoff between expiring cached data with a TTL versus explicitly invalidating it when the underlying data changes?",
+    answer:
+      "A TTL is simple to implement — set an expiry and forget it — but it means the cache is guaranteed to be wrong for some window after every underlying change, since nothing tells it to update early. Explicit invalidation keeps the cache accurate immediately, but requires finding and correctly triggering invalidation at every single code path that can change that data, which is easy to miss in a large codebase. Many systems use both together: explicit invalidation for the common, known write paths, with a TTL as a safety net that bounds how stale the cache can ever get even if an invalidation is missed.",
+    category: "Caching & Performance",
+  },
+  {
+    id: "cache-warming",
+    term: "Cache warming",
+    prompt: "What is cache warming, and why might a freshly deployed or restarted service need it?",
+    answer:
+      "A cold cache (empty, right after a restart or deploy) means the first requests for any given key all miss and fall through to the database, which can cause a painful latency/load spike right when a service comes back up. Cache warming proactively populates the cache with commonly-needed data before real traffic arrives (e.g. replaying recent popular keys, or pre-loading a known hot dataset), so the service starts serving at a reasonable hit rate immediately instead of ramping up from zero under live production load.",
+    category: "Caching & Performance",
+  },
+  {
+    id: "negative-caching",
+    term: "Negative caching",
+    prompt: "What is negative caching, and why is it necessary even though there's technically nothing to cache?",
+    answer:
+      "Negative caching means caching the fact that a lookup returned 'not found,' not just caching successful results. Without it, a request for something that doesn't exist falls through to the database on every single request, since a cache normally only stores hits — a flood of requests for non-existent keys can hammer the database just as hard as if there were no cache at all. Caching the negative result for a short TTL protects the database from that pattern, at the cost of a newly-created resource potentially appearing 'not found' for a brief window if it was checked right before it was created.",
+    category: "Caching & Performance",
+  },
+  {
+    id: "cache-control-headers",
+    term: "Cache-Control headers (max-age, stale-while-revalidate)",
+    prompt: "What do the max-age and stale-while-revalidate HTTP caching directives each control?",
+    answer:
+      "max-age tells a cache (browser or CDN) how long a response can be served directly from cache before it's considered stale and must be revalidated with the origin. stale-while-revalidate allows the cache to keep serving the stale response immediately while it revalidates in the background, rather than making the user wait for a fresh response — trading a small chance of showing slightly outdated content for consistently fast responses, since the user never has to wait on the revalidation request itself.",
+    category: "Caching & Performance",
+  },
+  {
+    id: "local-vs-distributed-cache",
+    term: "In-memory (local) cache vs distributed cache",
+    prompt: "What's the tradeoff between a local, in-process cache and a distributed cache like Redis shared across instances?",
+    answer:
+      "A local cache (just a map in application memory) is extremely fast — no network hop — but every instance has its own separate copy, so a value cached on one instance is invisible to (and can be inconsistent with) the same key on another instance, and it's wiped whenever that instance restarts. A distributed cache is shared across all instances (one consistent view, survives restarts) but costs a network round-trip per access. Many high-performance systems layer both: a small, very fast local cache in front of a shared distributed cache, accepting a bit of inter-instance staleness in exchange for avoiding the network hop on the hottest keys.",
+    category: "Caching & Performance",
+  },
+  {
+    id: "bloom-filter",
+    term: "Bloom filter",
+    prompt: "What is a Bloom filter, and why would a system use one before checking a cache or database?",
+    answer:
+      "A Bloom filter is a compact, probabilistic data structure that can tell you 'definitely not present' or 'possibly present' for a given key, using far less memory than storing the actual keys — at the cost of allowing false positives (rarely saying 'possibly present' for something that isn't) but never false negatives. Systems use one as a cheap pre-check before a more expensive lookup: if the Bloom filter says 'definitely not present,' you can skip the expensive lookup entirely, a big win when most lookups are for things that don't exist (checking whether a username is taken, or a key exists before hitting a slow on-disk index).",
+    category: "Caching & Performance",
+  },
+  {
+    id: "write-coalescing",
+    term: "Write coalescing",
+    prompt: "What is write coalescing, and how does it reduce load on a downstream system?",
+    answer:
+      "Instead of writing every single update to a value through to the downstream store immediately, write coalescing buffers rapid successive updates to the same key over a short window and only writes the final (or periodically aggregated) value downstream, collapsing many writes into one. This is the same idea behind why a viral post's like counter doesn't write to the database on every single like — many rapid updates to the same key get merged into far fewer actual writes, trading a small write-visibility delay for a large reduction in downstream write load.",
     category: "Caching & Performance",
   },
 
@@ -328,5 +664,61 @@ export const conceptFlashcards: ConceptFlashcard[] = [
       "A fixed window (e.g. 'max 100 requests per minute, reset every :00') resets its counter at a hard boundary, so a client can send 100 requests in the last second of one window and another 100 in the first second of the next — 200 requests in about 2 seconds, well above the intended rate, while technically staying within each window's individual limit. Sliding-window or token-bucket approaches avoid this since they have no hard reset point a client can exploit.",
     category: "Reliability & Scaling",
     relatedScenarioSlug: "public-api-rate-limiter",
+  },
+  {
+    id: "bulkhead-pattern",
+    term: "Bulkhead pattern",
+    prompt: "What is the bulkhead pattern, named after ship design, and what failure does it prevent?",
+    answer:
+      "Just as a ship's hull is divided into separate watertight compartments so a breach in one doesn't sink the whole ship, the bulkhead pattern isolates resources (thread pools, connection pools) per dependency, so one slow or failing dependency can't exhaust resources shared across the entire application. Without bulkheads, if every outgoing call shares one thread pool, a single slow downstream dependency can occupy every thread waiting on it, starving unrelated requests to healthy dependencies of any threads at all — one bad dependency effectively takes down the whole service, not just the calls that depend on it.",
+    category: "Reliability & Scaling",
+  },
+  {
+    id: "chaos-engineering",
+    term: "Chaos engineering",
+    prompt: "What is chaos engineering, and why deliberately cause failures in a system that's already working?",
+    answer:
+      "Chaos engineering is the practice of deliberately injecting failures (killing instances, adding network latency, cutting off a dependency) into a system, often in production, to verify that the redundancy and failure-handling you believe you've built actually works under real conditions. Failure-handling code runs least often and is hardest to test realistically — a failover mechanism that's never actually been triggered by a real failure is a hypothesis, not a verified fact, and chaos engineering turns that hypothesis into evidence before a real, unplanned outage does it for you at the worst possible time.",
+    category: "Reliability & Scaling",
+  },
+  {
+    id: "blue-green-vs-canary",
+    term: "Blue-green vs canary deployments",
+    prompt: "What's the difference between a blue-green deployment and a canary deployment, and what does each optimize for?",
+    answer:
+      "Blue-green keeps two full production environments (blue = current, green = new version); once verified, traffic is switched over all at once (or instantly reverted if something's wrong) — very fast, clean rollback, but a bug only shows up once 100% of traffic hits it. Canary deployments instead route a small percentage of real traffic to the new version while most stays on the old one, gradually increasing as confidence grows — this limits the blast radius of a bad deploy to a small slice of users, at the cost of running two versions simultaneously for longer and needing traffic-splitting infrastructure.",
+    category: "Reliability & Scaling",
+  },
+  {
+    id: "health-check-autoscaling",
+    term: "Health-check-based autoscaling",
+    prompt: "Why is it risky to base autoscaling decisions purely on a metric like CPU usage, without factoring in health checks?",
+    answer:
+      "CPU usage alone can't distinguish 'healthy and legitimately busy' from 'stuck/degraded and spinning' — a service deadlocked in a retry loop might show high CPU and get scaled up, adding more broken instances instead of fixing the problem, or a service that's healthy but genuinely CPU-light under a different bottleneck might not scale up when it actually needs to. Combining health checks with load-based metrics means unhealthy instances get removed from rotation rather than counted as 'capacity,' and scaling decisions are based on whether instances can actually serve traffic, not just a proxy metric that can mislead in exactly the failure scenarios that matter most.",
+    category: "Reliability & Scaling",
+  },
+  {
+    id: "dead-letter-queue",
+    term: "Dead letter queue",
+    prompt: "What is a dead letter queue, and what problem does it solve for message processing systems?",
+    answer:
+      "When a consumer repeatedly fails to process a message (a malformed payload, a bug triggered by that specific message), naively retrying forever either blocks the queue behind that one poison message or burns resources retrying something that will never succeed. A dead letter queue is a separate holding queue that a message gets moved to after exceeding a retry limit, letting the main queue keep processing everything else unblocked, while the failed message is preserved for a human or a separate process to inspect later.",
+    category: "Reliability & Scaling",
+  },
+  {
+    id: "delivery-guarantees",
+    term: "At-least-once vs exactly-once vs at-most-once delivery",
+    prompt: "What do at-least-once, at-most-once, and exactly-once delivery guarantees actually mean, and which is hardest to achieve?",
+    answer:
+      "At-most-once means a message is delivered zero or one times — never retried, so simple but can silently lose messages on failure. At-least-once means a message is guaranteed delivered one or more times — achieved via retries, but consumers might see duplicates and must handle them (typically via idempotency). Exactly-once — delivered precisely once, no duplicates, no loss — is hardest to actually achieve in a distributed system, and in practice most systems that claim 'exactly-once' are really doing at-least-once delivery plus idempotent processing, producing the same observable effect without solving the harder underlying problem directly.",
+    category: "Reliability & Scaling",
+  },
+  {
+    id: "timeout-budgets",
+    term: "Timeout budgets",
+    prompt: "If a request calls through three services in sequence, why can't each one just use the same, say, 5-second timeout?",
+    answer:
+      "If service A calls B which calls C, and all three use a 5-second timeout independently, A might wait up to 5 seconds for B, which itself might wait up to 5 seconds for C — A's actual worst-case latency is closer to 10-15 seconds, not 5, and A's own caller (if it also has a 5-second timeout) would time out and give up long before A gets a response. A timeout budget fixes the total time allowed for the whole request chain up front, and each hop is given a shrinking fraction of whatever budget remains, so no downstream call can ever cause the whole chain to blow past the original caller's actual patience.",
+    category: "Reliability & Scaling",
   },
 ];

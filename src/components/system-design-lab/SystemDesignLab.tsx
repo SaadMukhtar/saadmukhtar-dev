@@ -15,6 +15,12 @@ const modes: { id: Mode; label: string }[] = [
 
 export function SystemDesignLab() {
   const [mode, setMode] = useState<Mode>("estimation");
+  const [scenarioDeepLink, setScenarioDeepLink] = useState<string | undefined>(undefined);
+
+  function navigateToScenario(slug: string) {
+    setScenarioDeepLink(slug);
+    setMode("scenarios");
+  }
 
   return (
     <div>
@@ -43,8 +49,10 @@ export function SystemDesignLab() {
       </div>
 
       {mode === "estimation" && <EstimationMode />}
-      {mode === "flashcards" && <FlashcardMode />}
-      {mode === "scenarios" && <ScenarioMode />}
+      {mode === "flashcards" && <FlashcardMode onNavigateToScenario={navigateToScenario} />}
+      {mode === "scenarios" && (
+        <ScenarioMode key={scenarioDeepLink ?? "default"} initialOpenSlug={scenarioDeepLink} />
+      )}
     </div>
   );
 }

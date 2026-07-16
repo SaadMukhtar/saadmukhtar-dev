@@ -2,6 +2,7 @@
 
 import { useState, type KeyboardEvent } from "react";
 import { estimationDrills } from "@/data/estimationDrills";
+import { getStageStyle } from "@/data/stageStyles";
 
 type StepResult = "unanswered" | "correct" | "incorrect" | "invalid";
 
@@ -26,6 +27,7 @@ export function EstimationMode() {
   );
 
   const step = drill.steps[stepIndex];
+  const stageStyle = getStageStyle(step.stage);
   const result = results[stepIndex];
   const isChecked = result !== "unanswered";
   const isLastStep = stepIndex === drill.steps.length - 1;
@@ -91,10 +93,19 @@ export function EstimationMode() {
       <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-300">{drill.description}</p>
 
       <div className="border border-black/[0.10] dark:border-white/[0.10] p-6">
-        <p className="mb-4 font-mono text-xs text-neutral-500 dark:text-neutral-500">
-          Step {stepIndex + 1} of {drill.steps.length}
+        <div className="mb-4 flex items-center gap-3">
+          <p className="font-mono text-xs text-neutral-500 dark:text-neutral-500">
+            Step {stepIndex + 1} of {drill.steps.length}
+          </p>
+          <span className="flex items-center gap-1.5">
+            <span className={`h-1.5 w-1.5 rounded-full ${stageStyle.dot}`} />
+            <span className={`text-xs ${stageStyle.text}`}>{step.stage}</span>
+          </span>
+        </div>
+        <p className="mb-2 text-sm leading-relaxed text-black dark:text-white">{step.question}</p>
+        <p className="mb-4 text-xs italic text-neutral-500 dark:text-neutral-400">
+          {step.whenAsked}
         </p>
-        <p className="mb-4 text-sm leading-relaxed text-black dark:text-white">{step.question}</p>
 
         <div className="mb-4 flex items-center gap-3">
           <input
@@ -143,9 +154,22 @@ export function EstimationMode() {
                 <p className="mb-2 font-mono text-xs text-neutral-600 dark:text-neutral-300">
                   {step.derivation}
                 </p>
-                <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+                <p className="mb-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
                   {step.explanation}
                 </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                    Say it like this:
+                  </span>
+                  {step.buzzwords.map((word) => (
+                    <span
+                      key={word}
+                      className="rounded bg-black/[0.04] dark:bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs text-neutral-600 dark:text-neutral-300"
+                    >
+                      {word}
+                    </span>
+                  ))}
+                </div>
               </>
             )}
           </div>

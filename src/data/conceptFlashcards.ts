@@ -721,4 +721,141 @@ export const conceptFlashcards: ConceptFlashcard[] = [
       "If service A calls B which calls C, and all three use a 5-second timeout independently, A might wait up to 5 seconds for B, which itself might wait up to 5 seconds for C — A's actual worst-case latency is closer to 10-15 seconds, not 5, and A's own caller (if it also has a 5-second timeout) would time out and give up long before A gets a response. A timeout budget fixes the total time allowed for the whole request chain up front, and each hop is given a shrinking fraction of whatever budget remains, so no downstream call can ever cause the whole chain to blow past the original caller's actual patience.",
     category: "Reliability & Scaling",
   },
+
+  // Observability
+  {
+    id: "metrics-logs-traces",
+    term: "Metrics vs logs vs traces",
+    prompt: "What are the three pillars of observability, and what does each answer that the others can't?",
+    answer:
+      "Metrics are numeric time-series aggregated over dimensions — cheap to store, great for dashboards and alerting on trends like 'p99 latency spiked'. Logs are discrete events with rich context — expensive per event but capture the 'what happened here' detail metrics can't. Traces are causally-linked spans across services showing a single request's path — the only thing that answers 'why is THIS request slow' when the bottleneck is 3 hops away. Mature systems use all three: metrics to detect, traces to localize, logs to explain.",
+    category: "Observability",
+  },
+  {
+    id: "sli-slo-sla",
+    term: "SLI vs SLO vs SLA",
+    prompt: "What's the difference between an SLI, an SLO, and an SLA, and why do they get confused?",
+    answer:
+      "An SLI (Service Level Indicator) is a measurement — the raw signal, like 'p99 latency' or 'error rate'. An SLO (Service Level Objective) is an internal goal set on that indicator — 'p99 latency < 200ms 99.9% of the time over a rolling 30-day window'. An SLA (Service Level Agreement) is a customer-facing contract with financial or business consequences if violated — almost always looser than the internal SLO on purpose (SLO=99.9%, SLA=99.5%) so you have headroom before contract penalties trigger. They get confused because engineers say 'SLA' when they mean 'SLO', which erodes the distinction between 'we try to' and 'we owe you money if we don't'.",
+    category: "Observability",
+  },
+  {
+    id: "cardinality-cost",
+    term: "High cardinality and its cost",
+    prompt: "Why is 'high cardinality' the thing observability engineers most fear, and where does it usually sneak in?",
+    answer:
+      "Cardinality is the number of unique combinations of label/tag values on a metric. A metric with 5 labels each having 100 possible values has 100^5 = 10 billion possible series — most metric stores allocate memory and index space per unique series, so cost scales roughly linearly with cardinality. It sneaks in via user IDs, request IDs, URLs with dynamic path segments, error messages with embedded values, or 'just add this one label' decisions that combinatorially explode. The mitigation is aggressive up-front label design: bounded enum-like values as labels (region, status_code, tier), and unbounded values (user_id, url) as log/trace fields, not metric labels.",
+    category: "Observability",
+  },
+  {
+    id: "otel-identity",
+    term: "OpenTelemetry metric identity",
+    prompt: "In OpenTelemetry, what actually defines the 'identity' of a metric time-series, and why does getting this wrong break billing and dashboards?",
+    answer:
+      "A single OTel metric series is uniquely identified by the tuple of (metric name + attributes + resource attributes + instrumentation scope). If any dimension is missing from a downstream aggregation (like GROUP BY name only), points from different services or different attribute sets get collapsed into the wrong bucket — the total looks 'correct' but attribution is wrong, so billing per-tenant or per-team charts silently double-count or under-count. Correct handling means grouping over every identity dimension when aggregating, even the ones that seem 'obviously the same'.",
+    category: "Observability",
+  },
+  {
+    id: "trace-context-propagation",
+    term: "Trace context propagation",
+    prompt: "In distributed tracing, what actually gets passed between services, and what happens if one service drops it?",
+    answer:
+      "A trace context (in W3C traceparent form: version-traceId-spanId-flags) travels in HTTP headers, gRPC metadata, or message queue attributes across every hop. Each service reads the incoming context, creates a child span pointing to the parent, and forwards its own new context downstream. If any service drops or fails to propagate the context, the trace splits into two disconnected trees — you'll see the upstream half and the downstream half in your UI, but you can't answer 'what happened to this specific request' end-to-end. That gap is often the exact service you most needed to see.",
+    category: "Observability",
+  },
+
+  // AI Systems
+  {
+    id: "continuous-batching",
+    term: "Continuous batching",
+    prompt: "What is continuous batching in LLM serving, and why is it dramatically better than static batching?",
+    answer:
+      "Static batching waits for a full batch of requests to arrive, runs them together, and returns responses once the whole batch finishes — so a fast request gets stuck behind slow ones and GPU utilization drops between batches. Continuous batching (also called iteration-level batching or in-flight batching) treats each generation step as the batching unit: as soon as one sequence in the batch finishes, its slot is filled by a new incoming request mid-batch, keeping the GPU near-100% utilized. It's the difference between shipping a bus only when full and running a bus that swaps passengers at every stop. vLLM's throughput advantage vs. naive PyTorch serving is largely from this.",
+    category: "AI Systems",
+  },
+  {
+    id: "kv-cache-paged-attention",
+    term: "KV cache and paged attention",
+    prompt: "What is the KV cache in LLM inference, and what problem does paged attention (vLLM) solve about it?",
+    answer:
+      "During autoregressive generation, each new token needs to attend to all previous tokens — recomputing key/value tensors for the whole prefix on every step is wasteful, so they're cached (the KV cache). At scale the cache dominates GPU memory. Naive allocation reserves the maximum sequence length up front per request, wasting most of it and capping concurrent request count. Paged attention (from vLLM) borrows the OS virtual-memory trick: allocate the KV cache in small fixed-size 'pages' on demand, with a mapping table per sequence. This eliminates internal fragmentation and lets you fit 2-4x more concurrent requests on the same GPU.",
+    category: "AI Systems",
+  },
+  {
+    id: "rag-chunking",
+    term: "RAG chunking strategies",
+    prompt: "In a RAG pipeline, what are the main ways to chunk source documents, and what's the tradeoff each is optimizing for?",
+    answer:
+      "Fixed-size chunks (e.g. 512 tokens with 50-token overlap) are simple and predictable but often split sentences or ideas mid-thought, hurting retrieval quality. Semantic chunking splits on paragraph or sentence boundaries — better coherence but variable chunk sizes make embedding cost harder to predict. Recursive chunking splits hierarchically (chapter → section → paragraph) preserving structure but is only useful when the source has real hierarchy. Late-chunking (embed the whole doc once, then chunk the token-level embeddings) preserves cross-chunk context but doubles compute. The right choice depends on document structure and retrieval eval — most teams start with fixed-size + overlap and only get fancier if recall metrics demand it.",
+    category: "AI Systems",
+  },
+  {
+    id: "vector-similarity-metrics",
+    term: "Cosine vs dot product vs L2 for vector similarity",
+    prompt: "For vector search in a RAG pipeline, when do you use cosine similarity vs dot product vs Euclidean (L2) distance?",
+    answer:
+      "Cosine similarity measures angle only, ignoring magnitude — best when embedding magnitudes are noisy or unrelated to semantic strength (typical for OpenAI/Anthropic embeddings). Dot product includes magnitude — faster (no normalization) and effectively identical to cosine if all vectors are pre-normalized to unit length, which most modern embedding models produce by default. L2 (Euclidean) distance is rarely used for text embeddings but appropriate when magnitude is semantically meaningful (e.g. some image embeddings). The practical answer for most LLM apps: pre-normalize once, then use dot product for speed.",
+    category: "AI Systems",
+  },
+  {
+    id: "prompt-caching",
+    term: "Prompt caching",
+    prompt: "What is prompt caching in an LLM API, and why does it matter for both cost and latency at scale?",
+    answer:
+      "Prompt caching stores the KV-cache computation of a stable prompt prefix (system prompt, few-shot examples, tool definitions) on the server side, keyed to a hash of that prefix. On subsequent requests with the same prefix, the server skips recomputing it and only processes the new user turn — cutting time-to-first-token by 50-90% on long system prompts, and reducing input token costs by up to 90% for the cached portion. The design lesson: put stable content (system prompt, few-shot, tool schemas) at the top of the prompt, and volatile content (user input, dynamic context) at the bottom — otherwise the cache never hits.",
+    category: "AI Systems",
+  },
+
+  // ML Infra
+  {
+    id: "parallelism-types",
+    term: "Data vs tensor vs pipeline parallelism",
+    prompt: "In distributed training, what are data, tensor, and pipeline parallelism, and when do you use each?",
+    answer:
+      "Data parallelism replicates the full model on each GPU and splits the batch — simplest, works when the model fits on a single GPU, and the main scaling bottleneck is the all-reduce of gradients. Tensor parallelism splits each layer's weights across GPUs (e.g. attention heads on different devices) — needed when the model itself is too big to fit on one GPU, at the cost of heavy inter-GPU communication per layer. Pipeline parallelism splits the model by layer across GPUs, with each GPU running a stage — reduces per-GPU memory but introduces pipeline bubbles unless micro-batched. Frontier training combines all three (3D parallelism): tensor within a node, pipeline across nodes, data across whole replicas.",
+    category: "ML Infra",
+  },
+  {
+    id: "fsdp",
+    term: "FSDP (Fully Sharded Data Parallel)",
+    prompt: "What is FSDP, and how is it different from standard data-parallel training?",
+    answer:
+      "In standard data parallelism (DDP), each GPU holds a full copy of the model parameters, gradients, and optimizer state — so GPU memory caps the model size. FSDP shards all three (parameters, gradients, optimizer states) across the data-parallel group and gathers only the shards a given GPU needs for the current forward or backward step, freeing them afterward. Effect: memory per GPU drops from O(model_size) to O(model_size / N), letting you train much larger models with the same hardware. Cost: extra communication for the all-gathers, partially hidden by overlapping with compute. It's the default choice for training multi-billion parameter models on commodity GPUs.",
+    category: "ML Infra",
+  },
+  {
+    id: "mixed-precision",
+    term: "Mixed precision training (fp16, bf16)",
+    prompt: "What is mixed-precision training, and what's the practical difference between fp16 and bf16?",
+    answer:
+      "Mixed-precision keeps a master copy of weights in fp32 for numerical stability but does the forward and backward passes in a lower-precision format (fp16 or bf16) — roughly 2x throughput on modern GPUs and half the memory for activations. fp16 has more mantissa bits (higher precision) but a smaller dynamic range, requiring loss scaling to prevent gradient underflow. bf16 has the same range as fp32 but less precision — no loss scaling needed, so it's easier to train stably, at the cost of noisier gradients on very small values. Modern training on A100/H100/TPUs is almost always bf16 by default.",
+    category: "ML Infra",
+  },
+  {
+    id: "gradient-checkpointing",
+    term: "Gradient checkpointing (activation recomputation)",
+    prompt: "What is gradient checkpointing, and what's the tradeoff it makes to enable training larger models?",
+    answer:
+      "During backpropagation, computing gradients requires the activations from every layer of the forward pass — normally these are all stored in memory, which for deep models dominates GPU memory usage. Gradient checkpointing discards most intermediate activations after the forward pass and recomputes them from a small set of saved 'checkpoint' activations when the backward pass reaches them. The tradeoff is compute for memory: you pay one extra forward pass in exchange for using O(sqrt(N)) memory instead of O(N) for a model with N layers. Typical cost: ~30% slower training in exchange for fitting a 2-3x larger model on the same GPU.",
+    category: "ML Infra",
+  },
+  {
+    id: "sft-rlhf-dpo",
+    term: "SFT vs RLHF vs DPO",
+    prompt: "What are SFT, RLHF, and DPO, and how do they fit together in modern LLM post-training?",
+    answer:
+      "SFT (Supervised Fine-Tuning) trains the base model on high-quality (prompt, ideal response) pairs — cheap and effective for teaching style, format, and basic instruction-following, but limited by the quality and coverage of the labeled dataset. RLHF (Reinforcement Learning from Human Feedback) uses a reward model trained on human preference comparisons to further steer the SFT model via PPO — powerful for nuanced preferences but complex, unstable, and expensive to run. DPO (Direct Preference Optimization) mathematically bypasses the reward model and PPO loop, optimizing the same objective directly on preference pairs — simpler, more stable, and increasingly the default choice for post-training. A typical pipeline today: pretrain → SFT → DPO (or RLHF variant).",
+    category: "ML Infra",
+  },
+
+  // Company Architectures
+  {
+    id: "bitly-architecture-overview",
+    term: "URL shortener at scale (bit.ly)",
+    prompt: "What's the core architecture of a URL shortener at scale, and what's the single biggest design decision?",
+    answer:
+      "The core pipeline is: user submits a long URL → service generates a short code (typically 6-7 characters, base62-encoded from a globally-unique ID or hash) → stored in a KV or wide-column DB keyed by short code → on read, short code is looked up (heavily cache-fronted, since the read:write ratio is ~100:1) and returned as a 301/302 redirect. The single biggest design decision is how you generate the short code: hash of the long URL (idempotent but collision-prone at scale) vs. distributed unique ID generator like Snowflake (guaranteed unique, base62 for short representation, but same URL produces different codes on repeat submissions). Most production systems pick the ID-generator route and deduplicate long-URL → short-code separately.",
+    category: "Company Architectures",
+    relatedScenarioSlug: "bitly-url-shortener",
+  },
 ];

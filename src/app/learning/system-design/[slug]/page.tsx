@@ -83,8 +83,8 @@ function DialogBlock({ turns }: { turns: DialogTurn[] }) {
   return (
     <div className="space-y-6">
       {turns.map((turn, i) => (
-        <div key={i} className="flex gap-4">
-          <div className="w-24 shrink-0 pt-0.5">
+        <div key={i} className="flex flex-col gap-1 sm:flex-row sm:gap-4">
+          <div className="shrink-0 sm:w-24 sm:pt-0.5">
             <span
               className={`font-mono text-xs uppercase tracking-wider ${
                 turn.speaker === "interviewer"

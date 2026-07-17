@@ -101,22 +101,22 @@ export default function Home() {
           </div>
 
           {/* Photo + name block */}
-          <div className="animate-fade-up anim-delay-1 flex items-center gap-8 mb-10">
+          <div className="animate-fade-up anim-delay-1 mb-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
             <Image
               src="/pfp.png"
               alt="Saad Mukhtar"
               width={120}
               height={120}
-              className="shrink-0 rounded-full object-cover"
+              className="h-24 w-24 shrink-0 rounded-full object-cover sm:h-[120px] sm:w-[120px]"
             />
-            <div>
-              <h1 className="mb-3 text-5xl font-semibold tracking-tight text-black dark:text-white md:text-6xl">
+            <div className="min-w-0">
+              <h1 className="mb-3 text-4xl font-semibold tracking-tight text-black dark:text-white sm:text-5xl md:text-6xl">
                 Saad Mukhtar.
               </h1>
-              <p className="mb-2 text-lg text-neutral-600 dark:text-neutral-300">
+              <p className="mb-2 text-base text-neutral-600 dark:text-neutral-300 sm:text-lg">
                 Software Engineer · Distributed Systems · Infrastructure
               </p>
-              <p className="text-base leading-relaxed text-neutral-600 dark:text-neutral-300">
+              <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300 sm:text-base">
                 Capital One Software · Tesla · PlayStation · Super.com · UWaterloo CS
               </p>
             </div>

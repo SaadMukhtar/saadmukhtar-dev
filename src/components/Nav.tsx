@@ -13,6 +13,7 @@ type NavLink = {
 
 const links: NavLink[] = [
   { label: "Projects", href: "/projects" },
+  { label: "Writing", href: "/blog" },
   {
     label: "Learning",
     dropdown: [
@@ -21,7 +22,6 @@ const links: NavLink[] = [
       { label: "Flashcards", href: "/learning/flashcards" },
     ],
   },
-  { label: "Writing", href: "/blog" },
   { label: "GitHub", href: "https://github.com/saadmukhtar" },
   { label: "LinkedIn", href: "https://linkedin.com/in/saad-mukhtar" },
   { label: "Email", href: "mailto:saadmukhtar01@gmail.com" },

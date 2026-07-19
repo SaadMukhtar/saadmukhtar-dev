@@ -78,6 +78,26 @@ export const CATEGORY_STYLES: Record<string, CategoryStyle> = {
     text: "text-lime-600 dark:text-lime-400",
     bg: "bg-lime-500/10 dark:bg-lime-400/10",
   },
+  "Common Patterns": {
+    dot: "bg-blue-500",
+    text: "text-blue-600 dark:text-blue-400",
+    bg: "bg-blue-500/10 dark:bg-blue-400/10",
+  },
+  "Advanced Topics": {
+    dot: "bg-pink-500",
+    text: "text-pink-600 dark:text-pink-400",
+    bg: "bg-pink-500/10 dark:bg-pink-400/10",
+  },
+  "Key Technologies": {
+    dot: "bg-green-500",
+    text: "text-green-600 dark:text-green-400",
+    bg: "bg-green-500/10 dark:bg-green-400/10",
+  },
+  "SD Interview Framework": {
+    dot: "bg-slate-500",
+    text: "text-slate-600 dark:text-slate-400",
+    bg: "bg-slate-500/10 dark:bg-slate-400/10",
+  },
 };
 
 const FALLBACK_STYLE: CategoryStyle = {

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
 import { Nav } from "@/components/Nav";
 import { conceptFlashcards, type ConceptFlashcard } from "@/data/conceptFlashcards";
 import { categories, getCategoryByName } from "@/data/categories";
@@ -16,7 +17,136 @@ const RATING_BUTTONS: { rating: Rating; label: string; key: string }[] = [
   { rating: "easy", label: "Easy", key: "4" },
 ];
 
-type ViewMode = "categories" | "study";
+type ViewMode = "daily" | "categories" | "study";
+
+// Deterministic PRNG seeded by a number. Same seed → same sequence.
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+// Pick N unique cards for the given date. Same date → same picks (everyone sees
+// the same daily deck; refreshes at local midnight).
+function pickDailyCards(
+  cards: ConceptFlashcard[],
+  dateStr: string,
+  count: number
+): ConceptFlashcard[] {
+  const seed = dateStr
+    .split("-")
+    .reduce((acc, part) => acc * 100 + parseInt(part, 10), 0);
+  const indices: number[] = [];
+  const used = new Set<number>();
+  let step = 0;
+  while (indices.length < count && step < 1000) {
+    const idx = Math.floor(seededRandom(seed + step) * cards.length);
+    if (!used.has(idx)) {
+      used.add(idx);
+      indices.push(idx);
+    }
+    step++;
+  }
+  return indices.map((i) => cards[i]);
+}
+
+function todayLocalDateStr(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// The concise interview-recall answer. If a card has an explicit keyPoint use it;
+// otherwise fall back to the first sentence of the full answer.
+function getKeyPoint(card: ConceptFlashcard): string {
+  if (card.keyPoint) return card.keyPoint;
+  const match = card.answer.match(/^[^.!?]+[.!?]+/);
+  return match ? match[0].trim() : card.answer;
+}
+
+// The full explanation shown behind the "Show full explanation" toggle. Only
+// worth rendering if it adds context beyond the keyPoint.
+function hasFullExplanation(card: ConceptFlashcard): boolean {
+  if (card.keyPoint) return true; // there's always more in `answer` beyond an explicit keyPoint
+  const keyPoint = getKeyPoint(card);
+  return card.answer.length > keyPoint.length + 20;
+}
+
+function RevealedAnswer({ card }: { card: ConceptFlashcard }) {
+  const [showFull, setShowFull] = useState(false);
+  const keyPoint = getKeyPoint(card);
+  const hasMore = hasFullExplanation(card);
+  return (
+    <div className="animate-fade-in">
+      <p className="text-base leading-relaxed text-black dark:text-white">
+        {keyPoint}
+      </p>
+      {hasMore && (
+        <div className="mt-4">
+          <button
+            onClick={() => setShowFull((s) => !s)}
+            className="inline-flex items-center gap-1 text-xs text-neutral-500 transition-colors hover:text-black dark:text-neutral-400 dark:hover:text-white"
+          >
+            {showFull ? "Hide full explanation" : "Show full explanation"}
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              className={`transition-transform ${showFull ? "rotate-180" : ""}`}
+            >
+              <path d="M3 4.5l3 3 3-3" />
+            </svg>
+          </button>
+          {showFull && (
+            <div className="mt-4 space-y-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-200">
+              <ReactMarkdown
+                components={{
+                  h3: ({ children }) => (
+                    <h3 className="mt-5 mb-2 text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                      {children}
+                    </h3>
+                  ),
+                  p: ({ children }) => (
+                    <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-200">
+                      {children}
+                    </p>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="ml-5 list-disc space-y-1.5 text-sm text-neutral-700 dark:text-neutral-200">
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="ml-5 list-decimal space-y-1.5 text-sm text-neutral-700 dark:text-neutral-200">
+                      {children}
+                    </ol>
+                  ),
+                  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                  strong: ({ children }) => (
+                    <strong className="font-semibold text-black dark:text-white">
+                      {children}
+                    </strong>
+                  ),
+                  code: ({ children }) => (
+                    <code className="rounded bg-black/[0.06] px-1 py-0.5 font-mono text-[0.85em] dark:bg-white/[0.10]">
+                      {children}
+                    </code>
+                  ),
+                }}
+              >
+                {card.answer}
+              </ReactMarkdown>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function CardModal({
   card,
@@ -62,23 +192,23 @@ function CardModal({
           <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} aria-hidden />
           <span className={`font-mono text-xs ${style.text}`}>{card.category}</span>
         </p>
-        <h3 className="mb-4 text-xl font-semibold text-black dark:text-white">
+        <h3 className="mb-4 text-2xl font-semibold text-black dark:text-white">
           {card.term}
         </h3>
-        <p className="mb-6 text-sm leading-relaxed text-neutral-700 dark:text-neutral-200">
+        <p className="mb-6 text-base leading-relaxed text-neutral-700 dark:text-neutral-200">
           {card.prompt}
         </p>
         {!revealed ? (
           <button
             onClick={() => setRevealed(true)}
-            className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-75 dark:bg-white dark:text-black"
+            className="rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-75 dark:bg-white dark:text-black"
           >
             Reveal <span className="opacity-60">(Space)</span>
           </button>
         ) : (
-          <p className="animate-fade-in border-t border-black/[0.06] pt-6 text-sm leading-relaxed text-neutral-600 dark:border-white/[0.06] dark:text-neutral-300">
-            {card.answer}
-          </p>
+          <div className="border-t border-black/[0.06] pt-6 dark:border-white/[0.06]">
+            <RevealedAnswer card={card} />
+          </div>
         )}
       </div>
     </div>
@@ -140,6 +270,125 @@ function CategoryGrid({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function SearchResults({
+  query,
+  onSelectCard,
+  onSelectCategory,
+}: {
+  query: string;
+  onSelectCard: (card: ConceptFlashcard) => void;
+  onSelectCategory: (categoryName: string) => void;
+}) {
+  const q = query.trim().toLowerCase();
+
+  const matchingCategories = useMemo(
+    () =>
+      categories.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.description.toLowerCase().includes(q) ||
+          c.topics.some((t) => t.name.toLowerCase().includes(q))
+      ),
+    [q]
+  );
+
+  const matchingCards = useMemo(
+    () =>
+      conceptFlashcards.filter(
+        (card) =>
+          card.term.toLowerCase().includes(q) ||
+          card.prompt.toLowerCase().includes(q) ||
+          card.category.toLowerCase().includes(q) ||
+          (card.keyPoint ?? "").toLowerCase().includes(q) ||
+          card.answer.toLowerCase().includes(q)
+      ),
+    [q]
+  );
+
+  if (!q) return null;
+
+  const totalHits = matchingCategories.length + matchingCards.length;
+
+  return (
+    <div>
+      <p className="mb-6 text-xs text-neutral-500 dark:text-neutral-400">
+        {totalHits === 0
+          ? "No matches"
+          : `${matchingCategories.length} categor${matchingCategories.length === 1 ? "y" : "ies"} · ${matchingCards.length} card${matchingCards.length === 1 ? "" : "s"}`}
+      </p>
+
+      {matchingCategories.length > 0 && (
+        <section className="mb-10">
+          <p className="mb-4 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+            Categories
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {matchingCategories.map((cat) => {
+              const style = getCategoryStyle(cat.name);
+              const cardCount = conceptFlashcards.filter(
+                (c) => c.category === cat.name
+              ).length;
+              return (
+                <button
+                  key={cat.slug}
+                  onClick={() => onSelectCategory(cat.name)}
+                  className="group flex flex-col border border-black/[0.10] p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:bg-black/[0.02] dark:border-white/[0.10] dark:hover:bg-white/[0.02]"
+                >
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className={`h-2 w-2 rounded-sm ${style.dot}`} aria-hidden />
+                    <span className="text-sm font-medium text-black dark:text-white">
+                      {cat.name}
+                    </span>
+                  </div>
+                  <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-300">
+                    {cat.description}
+                  </p>
+                  <p className="mt-2 text-[11px] text-neutral-500 dark:text-neutral-400">
+                    {cardCount} card{cardCount === 1 ? "" : "s"}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {matchingCards.length > 0 && (
+        <section>
+          <p className="mb-4 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+            Cards
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {matchingCards.map((card) => {
+              const style = getCategoryStyle(card.category);
+              return (
+                <button
+                  key={card.id}
+                  onClick={() => onSelectCard(card)}
+                  className="group flex flex-col border border-black/[0.08] p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:bg-black/[0.02] dark:border-white/[0.08] dark:hover:bg-white/[0.02]"
+                >
+                  <div className="mb-2 flex items-center gap-1.5">
+                    <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} aria-hidden />
+                    <span className={`font-mono text-[10px] ${style.text}`}>
+                      {card.category}
+                    </span>
+                  </div>
+                  <p className="mb-1 text-sm font-medium text-black dark:text-white">
+                    {card.term}
+                  </p>
+                  <p className="line-clamp-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-300">
+                    {card.prompt}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
@@ -255,6 +504,126 @@ function CategoryDetail({
   );
 }
 
+function DailyFiveMode() {
+  const today = useMemo(() => todayLocalDateStr(), []);
+  const dailyCards = useMemo(
+    () => pickDailyCards(conceptFlashcards, today, 5),
+    [today]
+  );
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  const [completed, setCompleted] = useState(false);
+
+  const currentCard = dailyCards[currentIndex];
+
+  function goNext() {
+    if (currentIndex < dailyCards.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setRevealed(false);
+    } else {
+      setCompleted(true);
+    }
+  }
+
+  useEffect(() => {
+    if (completed) return;
+    function onKey(e: KeyboardEvent) {
+      if (!revealed) {
+        if (e.key === " " || e.key === "Enter") {
+          e.preventDefault();
+          setRevealed(true);
+        }
+      } else {
+        if (e.key === "ArrowRight" || e.key === "Enter") {
+          e.preventDefault();
+          goNext();
+        }
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [revealed, completed, currentIndex]);
+
+  if (completed) {
+    return (
+      <div className="border border-black/[0.10] p-10 text-center dark:border-white/[0.10]">
+        <p className="mb-2 text-lg font-medium text-black dark:text-white">
+          Done for today.
+        </p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-300">
+          5 fresh cards land tomorrow at midnight.
+        </p>
+      </div>
+    );
+  }
+
+  const style = getCategoryStyle(currentCard.category);
+
+  return (
+    <div>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          Card {currentIndex + 1} of {dailyCards.length} · {today}
+        </p>
+        <div className="flex gap-1">
+          {dailyCards.map((_, i) => (
+            <span
+              key={i}
+              className={`h-1 w-6 rounded-full ${
+                i < currentIndex
+                  ? "bg-emerald-500"
+                  : i === currentIndex
+                    ? "bg-black dark:bg-white"
+                    : "bg-black/10 dark:bg-white/10"
+              }`}
+              aria-hidden
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="border border-black/[0.10] p-6 dark:border-white/[0.10]">
+        <p className="mb-2 flex items-center gap-1.5">
+          <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} aria-hidden />
+          <span className={`font-mono text-xs ${style.text}`}>
+            {currentCard.category}
+          </span>
+        </p>
+        <h3 className="mb-4 text-2xl font-semibold text-black dark:text-white">
+          {currentCard.term}
+        </h3>
+        <p className="mb-6 text-base leading-relaxed text-neutral-700 dark:text-neutral-200">
+          {currentCard.prompt}
+        </p>
+
+        {!revealed ? (
+          <button
+            onClick={() => setRevealed(true)}
+            className="rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-75 dark:bg-white dark:text-black"
+          >
+            Reveal <span className="opacity-60">(Space)</span>
+          </button>
+        ) : (
+          <>
+            <div className="mb-6 border-t border-black/[0.06] pt-6 dark:border-white/[0.06]">
+              <RevealedAnswer card={currentCard} />
+            </div>
+            <button
+              onClick={goNext}
+              className="animate-fade-in rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-75 dark:bg-white dark:text-black"
+            >
+              {currentIndex < dailyCards.length - 1 ? "Next card" : "Finish"}{" "}
+              <span className="opacity-60">(→)</span>
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function StudyMode() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const filteredCards = useMemo(
@@ -339,7 +708,7 @@ function StudyMode() {
           </p>
 
           <div className="border border-black/[0.10] p-6 dark:border-white/[0.10]">
-            <p className="mb-1 flex items-center gap-1.5">
+            <p className="mb-2 flex items-center gap-1.5">
               <span
                 className={`h-1.5 w-1.5 rounded-full ${getCategoryStyle(currentCard.category).dot}`}
                 aria-hidden
@@ -350,25 +719,25 @@ function StudyMode() {
                 {currentCard.category}
               </span>
             </p>
-            <h3 className="mb-4 font-medium text-black dark:text-white">
+            <h3 className="mb-4 text-2xl font-semibold text-black dark:text-white">
               {currentCard.term}
             </h3>
-            <p className="mb-4 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+            <p className="mb-6 text-base leading-relaxed text-neutral-700 dark:text-neutral-200">
               {currentCard.prompt}
             </p>
 
             {!revealed ? (
               <button
                 onClick={() => setRevealedCardId(currentCard.id)}
-                className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-75 dark:bg-white dark:text-black"
+                className="rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-75 dark:bg-white dark:text-black"
               >
                 Reveal <span className="opacity-60">(Space)</span>
               </button>
             ) : (
               <>
-                <p className="animate-fade-in mb-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-                  {currentCard.answer}
-                </p>
+                <div className="mb-6 border-t border-black/[0.06] pt-6 dark:border-white/[0.06]">
+                  <RevealedAnswer card={currentCard} />
+                </div>
                 <div className="animate-fade-in flex flex-wrap gap-3">
                   {RATING_BUTTONS.map((b) => (
                     <button
@@ -393,9 +762,10 @@ function StudyMode() {
 }
 
 export default function FlashcardsPage() {
-  const [viewMode, setViewMode] = useState<ViewMode>("categories");
+  const [viewMode, setViewMode] = useState<ViewMode>("daily");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [modalCard, setModalCard] = useState<ConceptFlashcard | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <div className="min-h-screen font-sans text-[--foreground]">
@@ -406,11 +776,24 @@ export default function FlashcardsPage() {
             Learning · Flashcards
           </p>
           <p className="mb-8 text-sm text-neutral-600 dark:text-neutral-300">
-            Concept cards across systems, distributed, AI infra, and ML. Browse by
-            category or run a spaced-repetition study session.
+            Concept cards across systems, distributed, AI infra, and ML. Do the daily
+            5, browse by category, or run a spaced-repetition study session.
           </p>
 
-          <div className="mb-10 flex items-center gap-2">
+          <div className="mb-10 flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => {
+                setViewMode("daily");
+                setSelectedCategory(null);
+              }}
+              className={`rounded-full px-3 py-1 text-xs transition-colors ${
+                viewMode === "daily"
+                  ? "bg-black text-white dark:bg-white dark:text-black"
+                  : "border border-black/15 text-neutral-600 hover:border-black/35 dark:border-white/15 dark:text-neutral-300 dark:hover:border-white/35"
+              }`}
+            >
+              Daily 5
+            </button>
             <button
               onClick={() => {
                 setViewMode("categories");
@@ -436,12 +819,58 @@ export default function FlashcardsPage() {
             </button>
           </div>
 
-          {viewMode === "categories" ? (
+          {viewMode === "categories" && !selectedCategory && (
+            <div className="mb-8 relative">
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search cards, categories, or topics…"
+                className="w-full border border-black/[0.10] bg-transparent py-3 pl-10 pr-4 text-sm text-black placeholder:text-neutral-500 focus:border-black/30 focus:outline-none dark:border-white/[0.10] dark:text-white dark:placeholder:text-neutral-400 dark:focus:border-white/30"
+              />
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 dark:text-neutral-400"
+              >
+                <circle cx="9" cy="9" r="6" />
+                <path d="M13.5 13.5L17 17" />
+              </svg>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  aria-label="Clear search"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white"
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <path d="M3 3l8 8M11 3L3 11" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          )}
+
+          {viewMode === "daily" ? (
+            <DailyFiveMode />
+          ) : viewMode === "categories" ? (
             selectedCategory ? (
               <CategoryDetail
                 categoryName={selectedCategory}
                 onBack={() => setSelectedCategory(null)}
                 onSelectCard={(c) => setModalCard(c)}
+              />
+            ) : searchQuery.trim() ? (
+              <SearchResults
+                query={searchQuery}
+                onSelectCard={(c) => setModalCard(c)}
+                onSelectCategory={(name) => {
+                  setSelectedCategory(name);
+                  setSearchQuery("");
+                }}
               />
             ) : (
               <CategoryGrid onSelect={(name) => setSelectedCategory(name)} />

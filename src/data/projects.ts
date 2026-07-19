@@ -27,6 +27,22 @@ export const projects: Project[] = [
     featured: true,
   },
   {
+    name: "Job Queue",
+    description:
+      "Production-grade distributed job queue from scratch — DLQ, retry policies, autoscaling workers, async concurrency control",
+    stack: ["Go", "Redis", "PostgreSQL"],
+    status: "planned",
+    niche: "queues",
+  },
+  {
+    name: "LLM Eval Framework",
+    description:
+      "Evaluation harness for LLM apps — LLM-as-judge, RAGAS for RAG quality, benchmark suites, A/B eval across model versions, regression detection dashboards",
+    stack: ["Python", "Claude API", "RAGAS", "ClickHouse"],
+    status: "planned",
+    niche: "ai-eval",
+  },
+  {
     name: "Consensus + Distributed KV Store",
     description:
       "Raft implementation with leader election, log replication, and linearizable reads across a multi-node cluster",
@@ -51,20 +67,20 @@ export const projects: Project[] = [
     niche: "ml-foundations",
   },
   {
-    name: "Job Queue",
-    description:
-      "Production-grade distributed job queue from scratch — DLQ, retry policies, autoscaling workers, async concurrency control",
-    stack: ["Go", "Redis", "PostgreSQL"],
-    status: "planned",
-    niche: "queues",
-  },
-  {
     name: "Distributed Load Testing Platform",
     description:
       "Coordinated load generation across container workers with autoscaling, real-time metrics, and multi-region test runs",
     stack: ["Go", "Kubernetes", "Prometheus", "Docker"],
     status: "planned",
     niche: "load-testing",
+  },
+  {
+    name: "Multi-model Inference Gateway",
+    description:
+      "LLM API gateway that routes requests across providers/models by cost, latency, and quality tier with automatic fallback, semantic caching, and per-tenant cost accounting",
+    stack: ["Go", "Redis", "LiteLLM", "OpenTelemetry"],
+    status: "planned",
+    niche: "ai-infra",
   },
   {
     name: "LLM Inference Server",
@@ -83,20 +99,20 @@ export const projects: Project[] = [
     niche: "vector-db",
   },
   {
-    name: "Kubernetes Operator",
-    description:
-      "Custom controller for a domain-specific resource with reconciliation loops, CRDs, and admission webhooks",
-    stack: ["Go", "kubebuilder", "controller-runtime"],
-    status: "planned",
-    niche: "k8s",
-  },
-  {
     name: "Distributed Load Balancer",
     description:
       "L7 load balancer with consistent hashing, dynamic backend registration via etcd, and Prometheus metrics",
     stack: ["Go", "etcd", "Prometheus"],
     status: "planned",
     niche: "networking",
+  },
+  {
+    name: "Kubernetes Operator",
+    description:
+      "Custom controller for a domain-specific resource with reconciliation loops, CRDs, and admission webhooks",
+    stack: ["Go", "kubebuilder", "controller-runtime"],
+    status: "planned",
+    niche: "k8s",
   },
   {
     name: "Video Processing Pipeline",

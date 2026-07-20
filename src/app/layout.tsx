@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Saad Mukhtar",
-  description: "Software Engineer — distributed systems, observability, infrastructure",
+  description: "Software Engineer: distributed systems, observability, infrastructure",
 };
 
 export default function RootLayout({

@@ -19,7 +19,7 @@ export async function generateMetadata({
   const pattern = dsaPatterns.find((p) => p.slug === slug);
   if (!pattern) return { title: "Not found" };
   return {
-    title: `${pattern.name} — DSA Patterns — Saad Mukhtar`,
+    title: `${pattern.name} · DSA Patterns · Saad Mukhtar`,
     description: pattern.shortDescription,
   };
 }

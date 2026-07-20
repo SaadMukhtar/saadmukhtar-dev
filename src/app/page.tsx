@@ -20,7 +20,7 @@ function boldify(text: string): React.ReactNode {
 
 export const metadata: Metadata = {
   title: "Saad Mukhtar",
-  description: "Software Engineer — distributed systems, observability, infrastructure",
+  description: "Software Engineer: distributed systems, observability, infrastructure",
 };
 
 const featuredProjects = projects.filter((p) => p.featured);

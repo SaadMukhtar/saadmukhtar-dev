@@ -3,8 +3,8 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
-  title: "How the Internet Found My Website — Saad Mukhtar",
-  description: "Bought a domain today. DNS, Cloudflare, Vercel — here's what actually happened.",
+  title: "How the Internet Found My Website · Saad Mukhtar",
+  description: "Bought a domain today. DNS, Cloudflare, Vercel: here's what actually happened.",
 };
 
 const C = ({ children }: { children: React.ReactNode }) => (
@@ -57,11 +57,11 @@ export default function Post() {
             {/* Background */}
             <div className="space-y-3">
               <h2 className="text-lg font-semibold text-black dark:text-white">Background</h2>
-              <p><B>DNS</B>{" "}— the phonebook of the internet. Translates domain names (<C>saadmukhtar.dev</C>) to IP addresses (<C>76.76.21.21</C>). Every browser request starts with a DNS lookup.</p>
-              <p><B>A record</B>{" "}— maps a domain directly to an IP address.</p>
-              <p><B>CNAME record</B>{" "}— maps a domain to another domain. More flexible — if Vercel&apos;s IP changes, the CNAME still resolves correctly.</p>
-              <p><B>CNAME flattening</B>{" "}— Cloudflare&apos;s trick for using CNAMEs on root domains (the DNS spec doesn&apos;t normally allow this).</p>
-              <p><B>CDN</B>{" "}— a network of servers distributed close to users. Vercel runs one. Cloudflare runs one too.</p>
+              <p><B>DNS</B>: the phonebook of the internet. Translates domain names (<C>saadmukhtar.dev</C>) to IP addresses (<C>76.76.21.21</C>). Every browser request starts with a DNS lookup.</p>
+              <p><B>A record</B>: maps a domain directly to an IP address.</p>
+              <p><B>CNAME record</B>: maps a domain to another domain. More flexible; if Vercel&apos;s IP changes, the CNAME still resolves correctly.</p>
+              <p><B>CNAME flattening</B>: Cloudflare&apos;s trick for using CNAMEs on root domains (the DNS spec doesn&apos;t normally allow this).</p>
+              <p><B>CDN</B>: a network of servers distributed close to users. Vercel runs one. Cloudflare runs one too.</p>
             </div>
 
             {/* What I did */}
@@ -88,11 +88,11 @@ export default function Post() {
 
             {/* Deep dive */}
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-black dark:text-white">Deep dive — the confusing parts</h2>
+              <h2 className="text-lg font-semibold text-black dark:text-white">Deep dive: the confusing parts</h2>
 
               <p>
                 <B>Why two CNAME records?</B>{" "}One for the apex (<C>@</C>), one for <C>www</C>.
-                They&apos;re technically different addresses — most people treat them as the same thing but DNS doesn&apos;t.
+                They&apos;re technically different addresses; most people treat them as the same thing but DNS doesn&apos;t.
                 Add only the apex in Vercel; it auto-redirects www → apex with a 308.
               </p>
 
@@ -102,7 +102,7 @@ export default function Post() {
               </p>
 
               <p>
-                <B>CNAME on a root domain?</B>{" "}The DNS spec says only A records (IPs) are allowed on an apex —
+                <B>CNAME on a root domain?</B>{" "}The DNS spec says only A records (IPs) are allowed on an apex;
                 CNAMEs are for subdomains. Cloudflare works around this by resolving the CNAME chain down to an IP
                 automatically before responding. That&apos;s CNAME flattening.
               </p>

@@ -699,7 +699,7 @@ function StudyMode() {
         <div className="h-64" />
       ) : !currentCard ? (
         <p className="text-sm text-neutral-600 dark:text-neutral-300">
-          All caught up — no cards due right now. Come back later.
+          All caught up, no cards due right now. Come back later.
         </p>
       ) : (
         <>

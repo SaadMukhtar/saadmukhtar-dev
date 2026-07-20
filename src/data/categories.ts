@@ -20,14 +20,14 @@ export type Topic = {
 //   6-7:   distributed systems mastery (CAP, consensus, reliability)
 //   8-9:   pattern recognition + concrete technology choices
 //   10-13: production concerns (observability, infra, security, data pipelines)
-//   14-15: AI/ML specialization (ML infra first — needs neural net + transformer basics)
+//   14-15: AI/ML specialization (ML infra first: needs neural net + transformer basics)
 //   16-17: applied depth (advanced algorithms, real company architectures)
 export const categories: Category[] = [
   {
     slug: "sd-interview-framework",
     name: "SD Interview Framework",
     description:
-      "The prescriptive 6-phase delivery framework for a system design interview — what to SAY and WRITE at each phase, with time budgets",
+      "The prescriptive 6-phase delivery framework for a system design interview: what to SAY and WRITE at each phase, with time budgets",
     status: "real",
     topics: [
       { name: "The 6-phase framework overview", covered: true },
@@ -44,7 +44,7 @@ export const categories: Category[] = [
     slug: "fundamentals",
     name: "Fundamentals",
     description:
-      "Core distributed systems vocabulary — latency, throughput, availability, capacity math",
+      "Core distributed systems vocabulary: latency, throughput, availability, capacity math",
     status: "real",
     topics: [
       { name: "p99 latency and tail behavior", covered: true },
@@ -149,7 +149,7 @@ export const categories: Category[] = [
     slug: "common-patterns",
     name: "Common Patterns",
     description:
-      "Design patterns that recur across system design interviews — realtime updates, long-running tasks, scaling reads/writes, and more",
+      "Design patterns that recur across system design interviews: realtime updates, long-running tasks, scaling reads/writes, and more",
     status: "real",
     topics: [
       { name: "Pushing realtime updates (WebSockets, SSE, long polling)", covered: true },
@@ -166,7 +166,7 @@ export const categories: Category[] = [
     slug: "key-technologies",
     name: "Key Technologies",
     description:
-      "The specific technologies interviewers expect you to know — databases, caches, queues, gateways, load balancers, CDNs",
+      "The specific technologies interviewers expect you to know: databases, caches, queues, gateways, load balancers, CDNs",
     status: "real",
     topics: [
       { name: "Relational DBs (Postgres, MySQL)", covered: true },
@@ -185,7 +185,7 @@ export const categories: Category[] = [
     slug: "observability",
     name: "Observability",
     description:
-      "Metrics, logs, traces, cardinality, SLOs — the three pillars and how they compose",
+      "Metrics, logs, traces, cardinality, SLOs: the three pillars and how they compose",
     status: "real",
     topics: [
       { name: "Metrics vs logs vs traces", covered: true },
@@ -311,7 +311,7 @@ export const categories: Category[] = [
     slug: "advanced-topics",
     name: "Advanced Topics",
     description:
-      "Deeper topics that show up in senior interviews — time-series, big-data structures, vector DBs, proximity search",
+      "Deeper topics that show up in senior interviews: time-series, big-data structures, vector DBs, proximity search",
     status: "real",
     topics: [
       { name: "Proximity search (geohash, quadtree, R-tree)", covered: true },
@@ -324,7 +324,7 @@ export const categories: Category[] = [
     slug: "company-architectures",
     name: "Company Architectures",
     description:
-      "How real companies build their systems — reference architectures for classic products",
+      "How real companies build their systems: reference architectures for classic products",
     status: "stub",
     topics: [
       { name: "bit.ly / URL shortener at scale", covered: true },

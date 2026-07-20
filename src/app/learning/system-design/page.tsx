@@ -5,7 +5,7 @@ import { designScenarios } from "@/data/designScenarios";
 import { getCategoryStyle } from "@/data/categoryStyles";
 
 export const metadata: Metadata = {
-  title: "System Design — Learning — Saad Mukhtar",
+  title: "System Design · Learning · Saad Mukhtar",
   description:
     "Real system design walkthroughs with interviewer/candidate dialog and architecture diagrams.",
 };
@@ -20,7 +20,7 @@ export default function SystemDesignPage() {
             Learning · System Design
           </p>
           <p className="mb-12 text-sm text-neutral-600 dark:text-neutral-300">
-            Real interview walkthroughs — the template + one full reference (bit.ly).
+            Real interview walkthroughs: the template + one full reference (bit.ly).
             More scenarios landing as I build them out.
           </p>
 

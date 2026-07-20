@@ -4,9 +4,9 @@ import { Nav } from "@/components/Nav";
 import { dsaPatterns } from "@/data/dsaPatterns";
 
 export const metadata: Metadata = {
-  title: "DSA Patterns — Learning — Saad Mukhtar",
+  title: "DSA Patterns · Learning · Saad Mukhtar",
   description:
-    "The recurring patterns behind medium-difficulty coding interviews — when to reach for each, curated problems, common mistakes.",
+    "The recurring patterns behind medium-difficulty coding interviews: when to reach for each, curated problems, common mistakes.",
 };
 
 export default function DsaPatternsPage() {
@@ -20,7 +20,7 @@ export default function DsaPatternsPage() {
           </p>
           <p className="mb-12 text-sm text-neutral-600 dark:text-neutral-300">
             The patterns behind most medium-difficulty problems. Two Pointers is fully
-            documented as the reference — others land as I fill them in.
+            documented as the reference; others land as I fill them in.
           </p>
 
           <div className="grid gap-6 sm:grid-cols-2">

@@ -11,7 +11,7 @@ export const projects: Project[] = [
   {
     name: "Observability Platform",
     description:
-      "End-to-end telemetry — metrics, logs, traces — at high write throughput with a query engine and dashboard",
+      "End-to-end telemetry (metrics, logs, traces) at high write throughput with a query engine and dashboard",
     stack: ["Go", "Kafka", "ClickHouse", "OpenTelemetry"],
     status: "building",
     niche: "observability",
@@ -29,7 +29,7 @@ export const projects: Project[] = [
   {
     name: "Job Queue",
     description:
-      "Production-grade distributed job queue from scratch — DLQ, retry policies, autoscaling workers, async concurrency control",
+      "Production-grade distributed job queue from scratch: DLQ, retry policies, autoscaling workers, async concurrency control",
     stack: ["Go", "Redis", "PostgreSQL"],
     status: "planned",
     niche: "queues",
@@ -37,7 +37,7 @@ export const projects: Project[] = [
   {
     name: "LLM Eval Framework",
     description:
-      "Evaluation harness for LLM apps — LLM-as-judge, RAGAS for RAG quality, benchmark suites, A/B eval across model versions, regression detection dashboards",
+      "Evaluation harness for LLM apps: LLM-as-judge, RAGAS for RAG quality, benchmark suites, A/B eval across model versions, regression detection dashboards",
     stack: ["Python", "Claude API", "RAGAS", "ClickHouse"],
     status: "planned",
     niche: "ai-eval",
@@ -61,7 +61,7 @@ export const projects: Project[] = [
   {
     name: "Small Transformer from Scratch",
     description:
-      "Decoder-only transformer built from PyTorch primitives — self-attention, positional encoding, trained on a real dataset",
+      "Decoder-only transformer built from PyTorch primitives: self-attention, positional encoding, trained on a real dataset",
     stack: ["Python", "PyTorch"],
     status: "planned",
     niche: "ml-foundations",
@@ -117,7 +117,7 @@ export const projects: Project[] = [
   {
     name: "Video Processing Pipeline",
     description:
-      "Ingestion pipeline — upload, chunking, transcode, async workers, object storage, and queue-driven fan-out",
+      "Ingestion pipeline: upload, chunking, transcode, async workers, object storage, and queue-driven fan-out",
     stack: ["Go", "S3", "Kafka", "FFmpeg"],
     status: "planned",
     niche: "data-pipeline",

@@ -25,7 +25,7 @@ export async function generateMetadata({
   const scenario = designScenarios.find((s) => s.slug === slug);
   if (!scenario) return { title: "Not found" };
   return {
-    title: `${scenario.system} — System Design — Saad Mukhtar`,
+    title: `${scenario.system} · System Design · Saad Mukhtar`,
     description: scenario.prompt,
   };
 }

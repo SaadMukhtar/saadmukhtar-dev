@@ -3,30 +3,30 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
-  title: "Writing — Saad Mukhtar",
+  title: "Writing · Saad Mukhtar",
   description: "Writing on distributed systems, infrastructure, and things I'm building.",
 };
 
 const posts = [
   {
     slug: "nextjs-vs-react",
-    title: "Next.js vs React — First Time Using It",
+    title: "Next.js vs React: First Time Using It",
     date: "July 5, 2026",
-    description: "Built this site with Next.js for the first time. What's actually different from plain React — and what an interviewer would ask.",
+    description: "Built this site with Next.js for the first time. What's actually different from plain React, and what an interviewer would ask.",
     readTime: "5 min",
   },
   {
     slug: "how-i-write",
     title: "How I Write",
     date: "July 5, 2026",
-    description: "The template I use for every blog post — and why each section exists.",
+    description: "The template I use for every blog post, and why each section exists.",
     readTime: "3 min",
   },
   {
     slug: "how-the-internet-finds-your-website",
     title: "How the Internet Found My Website",
     date: "July 4, 2026",
-    description: "Bought a domain today. DNS, Cloudflare, Vercel — here's what actually happened.",
+    description: "Bought a domain today. DNS, Cloudflare, Vercel: here's what actually happened.",
     readTime: "4 min",
   },
 ];

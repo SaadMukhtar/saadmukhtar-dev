@@ -84,6 +84,20 @@ For multi-step tasks, state a brief plan:
 - Ask before installing a new dependency. Every package adds surface area.
 - Prefer native browser APIs or Next.js built-ins over a library where practical.
 
+## Checking the Site
+
+After any UI change — always start the dev server and take screenshots before reporting the task as done:
+
+```bash
+npm run dev > /tmp/nextjs-dev.log 2>&1 &
+sleep 8
+PLAYWRIGHT_BROWSERS_PATH=/Users/saadmukhtar/Library/Caches/ms-playwright \
+  npx playwright@1.61.1 screenshot --browser chromium --wait-for-timeout 2000 \
+  http://localhost:3000 /tmp/site-check.png
+```
+
+Then read `/tmp/site-check.png` to visually verify. Check the pages relevant to the change. Kill the server when done: `pkill -f "next dev"`.
+
 ## Deployments
 
 Never run `git push` without first testing locally with the dev server and getting explicit user confirmation. Always offer "want to test this locally before I push?" as a checkpoint.

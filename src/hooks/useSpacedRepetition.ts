@@ -22,7 +22,7 @@ export function useSpacedRepetition(cards: ConceptFlashcard[]) {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) setProgress(JSON.parse(raw));
     } catch {
-      // corrupt localStorage — fall back to empty progress
+      // corrupt localStorage, fall back to empty progress
     }
     setHydrated(true);
   }, []);
@@ -39,7 +39,7 @@ export function useSpacedRepetition(cards: ConceptFlashcard[]) {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextProgress));
     } catch {
-      // localStorage unavailable — progress stays in-memory for this session
+      // localStorage unavailable, progress stays in-memory for this session
     }
   }
 

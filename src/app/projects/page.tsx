@@ -3,7 +3,7 @@ import { Nav } from "@/components/Nav";
 import { projects, type Project } from "@/data/projects";
 
 export const metadata: Metadata = {
-  title: "Projects — Saad Mukhtar",
+  title: "Projects · Saad Mukhtar",
   description:
     "What I'm building and what's next — distributed systems, observability, ML infra.",
 };

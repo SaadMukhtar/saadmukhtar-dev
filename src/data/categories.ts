@@ -321,6 +321,26 @@ export const categories: Category[] = [
     ],
   },
   {
+    slug: "object-design",
+    name: "Object Design",
+    description:
+      "Implement-a-data-structure interview problems: rate limiters, caches, TTL maps, counters. The 'build X in 30 min' coding round, distinct from algorithmic DSA patterns",
+    status: "real",
+    topics: [
+      { name: "LRU cache (LC 146)", covered: true },
+      { name: "LFU cache (LC 460)", covered: true },
+      { name: "Token bucket rate limiter", covered: true },
+      { name: "Sliding window rate limiter", covered: true },
+      { name: "KV store with TTL", covered: true },
+      { name: "Time-based KV (LC 981)", covered: true },
+      { name: "Logger rate limiter (LC 359)", covered: true },
+      { name: "Hit counter (LC 362)", covered: true },
+      { name: "Bounded blocking queue", covered: true },
+      { name: "Consistent hashing ring", covered: true },
+      { name: "Snapshot / versioned map", covered: true },
+    ],
+  },
+  {
     slug: "company-architectures",
     name: "Company Architectures",
     description:

@@ -2209,4 +2209,720 @@ export const conceptFlashcards: ConceptFlashcard[] = [
       "### What They're Actually Evaluating\nIf AI alone could pass, they'd hire the AI. They're grading:\n1. **Judgment** — what to build, in what order, at what depth\n2. **Prompting precision** — narrow, contextual, verifiable\n3. **Verification discipline** — trust *and* verify, or just accept?\n4. **Reading code** — catch AI bugs before they compound\n5. **Recovery** — notice when AI goes off the rails and course-correct\n6. **Taste** — clean vs bloated LLM-flavored code\n7. **Ownership at the end** — can you defend every line you shipped?\n\n### Time Budget (60–120 min)\n\n| Phase | Time |\n|---|---|\n| Clarify scope | 5 min |\n| Read the codebase | 5–10 min |\n| Plan (3–5 milestones) | 5 min |\n| Milestone 1 (scaffolding) | 15–20 min |\n| Milestone 2 (depth) | 20–30 min |\n| Milestone 3 (polish) | 10–20 min |\n| Final read-through | 5 min |\n| Debrief | 5 min |\n\nBudget **20% of the time to planning + reading.** Don't start prompting immediately.\n\n### The Strict Format\n1. Clarify scope (what MUST work; what's out)\n2. Read the codebase (conventions, framework versions, entry point)\n3. Sketch a plan (3–5 verifiable milestones)\n4. Prompt narrowly (one task, one file, one function — with context)\n5. Read the diff line by line before accepting\n6. Run / test after each change\n7. Fix small stuff by hand\n8. Narrate every judgment (accept/reject and why)\n9. Final read-through — defend every changed line\n\n### Must-Dos\n- **Clarify BEFORE opening the AI panel.**\n- **Read the codebase first** — LLMs hallucinate against version drift.\n- **Plan out loud** — 3–5 milestones with verification per milestone.\n- **One narrow prompt at a time.** 'Add validation to createUser in api/users.ts — 400 if email missing.' Not 'build the user system.'\n- **Give AI the relevant file / snippet as context.** Don't make it guess.\n- **Read every diff before accepting.** If you can't explain a line, don't accept it. Single biggest signal.\n- **Run the app / tests after every meaningful change.**\n- **Fix small stuff by hand** — imports, renames, typos. Faster than prompting.\n- **Narrate accept/reject.** 'Accepting — matches Nav.tsx pattern.' 'Rejecting — unnecessary abstraction.'\n- **Track scope drift.** Remove AI-added features you didn't ask for.\n- **Final read-through.** Walk the interviewer through every changed line.\n- **Ship less, polished.** M1 working > M1+M2+M3 broken.\n\n### Red Flags\n- Prompt-then-accept without reading (instant 'I can't do this without AI' signal)\n- Prompt spam (same prompt 3x, hoping for a better answer)\n- Never running the code\n- Trusting AI on API versions (Next.js 15/16, Tailwind v4)\n- Long silence — no narration of judgment\n- Accepting a 200-line diff for a 20-line ask\n- Fake-passing tests by weakening them\n- Skipping the codebase read → AI hallucinates a pattern that doesn't match\n- Adding scope AI suggested but you didn't ask for\n- Bailed out by AI on something you can't explain\n\n### Prompting Precision\n**Bad:** 'Add authentication.'\n**Good:** 'In middleware.ts, if the path starts with /dashboard and there's no valid session cookie, redirect to /login. Use the existing getSession() from lib/auth.ts. No new deps.'\n\nGood prompts: narrow, contextual, verifiable, constrained.\n\n### The Verification Loop (Non-Negotiable)\nAfter every AI change:\n1. Read the diff — every line\n2. Compile / typecheck\n3. Run the change\n4. Confirm the ask (does it do what you asked, and nothing more?)\n\nSkip step 1 → you're a middleman, not the engineer.\n\n### The Two Cracked Lines\n**Early:** 'Before I prompt anything — let me read the [file / schema / API] so I understand the shape.' Signals you're driving. Rarest signal in an AI interview.\n**Close:** 'Let me do a final read-through of everything that changed — I want to be able to defend every line.' Shows ownership.\n\n### The One Rule\nYou are the engineer. AI is the tool. If the diff isn't something you'd write and defend in a code review, don't accept it. If you can't explain it, don't ship it. Speed without judgment fails you — not for being slow, but for being replaceable.",
     category: "SD Interview Framework",
   },
+  // Object Design — implement-a-data-structure coding problems
+  {
+    id: "lru-cache",
+    term: "LRU cache",
+    prompt:
+      "Design a data structure that supports `get(key)` and `put(key, value)` in O(1) with a fixed capacity. When capacity is exceeded, evict the least recently used entry. (LeetCode 146.)",
+    keyPoint:
+      "Doubly-linked list for ordering + hashmap key→node for O(1) lookup. On `get`: move node to head. On `put`: insert/move to head; if over capacity, drop tail. Python one-liner uses `collections.OrderedDict.move_to_end`, but hand-roll the DLL in an interview to prove you understand it.",
+    answer: `### Approach
+Two data structures cooperating:
+1. **Hashmap** \`key → node\` for O(1) lookup.
+2. **Doubly-linked list** ordered most-recent → least-recent, so eviction is O(1) at the tail and reorder is O(1) with node pointers.
+
+Sentinel head/tail nodes eliminate null checks.
+
+### Code (interview version — hand-rolled DLL)
+\`\`\`python
+class Node:
+    __slots__ = ("key", "val", "prev", "next")
+    def __init__(self, key=0, val=0):
+        self.key, self.val = key, val
+        self.prev = self.next = None
+
+class LRUCache:
+    def __init__(self, capacity: int):
+        self.cap = capacity
+        self.map: dict[int, Node] = {}
+        self.head, self.tail = Node(), Node()   # sentinels
+        self.head.next = self.tail
+        self.tail.prev = self.head
+
+    def _remove(self, node: Node) -> None:
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def _add_to_front(self, node: Node) -> None:
+        node.next = self.head.next
+        node.prev = self.head
+        self.head.next.prev = node
+        self.head.next = node
+
+    def get(self, key: int) -> int:
+        if key not in self.map:
+            return -1
+        node = self.map[key]
+        self._remove(node)
+        self._add_to_front(node)
+        return node.val
+
+    def put(self, key: int, val: int) -> None:
+        if key in self.map:
+            self._remove(self.map[key])
+        node = Node(key, val)
+        self._add_to_front(node)
+        self.map[key] = node
+        if len(self.map) > self.cap:
+            lru = self.tail.prev
+            self._remove(lru)
+            del self.map[lru.key]
+\`\`\`
+
+### One-liner if allowed
+\`\`\`python
+from collections import OrderedDict
+class LRUCache(OrderedDict):
+    def __init__(self, cap): super().__init__(); self.cap = cap
+    def get(self, k):
+        if k not in self: return -1
+        self.move_to_end(k); return self[k]
+    def put(self, k, v):
+        if k in self: self.move_to_end(k)
+        self[k] = v
+        if len(self) > self.cap: self.popitem(last=False)
+\`\`\`
+
+### Complexity
+O(1) per op, O(capacity) space.
+
+### Gotchas
+- Store the key on the node so eviction can delete from the hashmap.
+- Sentinel nodes save you from special-casing head/tail.
+- Thread-safety: wrap ops in a lock; **don't** just guard the map — the DLL reorder is the race.
+- Common follow-up: make it thread-safe → what if the follow-up is high-contention? Sharded LRU (N caches keyed by \`hash(key) % N\`).`,
+    category: "Object Design",
+  },
+  {
+    id: "lfu-cache",
+    term: "LFU cache",
+    prompt:
+      "Design an O(1) least-frequently-used cache: `get(key)` and `put(key, value)`; when full, evict the least-used entry, breaking ties with LRU within that frequency. (LeetCode 460.)",
+    keyPoint:
+      "Three maps: key→node, key→freq, freq→DLL of nodes at that frequency (LRU-ordered within each). Track `min_freq`. On access, unlink from freq f's list, append to freq f+1's list; if f's list is now empty and f == min_freq, bump min_freq. Evict from `min_freq` list's tail.",
+    answer: `### Approach
+LFU is LRU with a twist: entries are grouped by access count, and within a frequency bucket you still evict LRU. So you keep **one LRU-ordered DLL per frequency**, plus a \`min_freq\` pointer so eviction is O(1).
+
+### Structures
+- \`key_to_node\`: hashmap key → node (val, freq stored on node)
+- \`freq_to_list\`: hashmap freq → DLL of nodes at that frequency
+- \`min_freq\`: current smallest frequency present
+
+### Code
+\`\`\`python
+from collections import defaultdict, OrderedDict
+
+class LFUCache:
+    def __init__(self, capacity: int):
+        self.cap = capacity
+        self.min_freq = 0
+        self.key_to_val_freq: dict[int, tuple[int, int]] = {}
+        self.freq_to_keys: dict[int, OrderedDict] = defaultdict(OrderedDict)
+
+    def _bump(self, key: int) -> None:
+        val, freq = self.key_to_val_freq[key]
+        del self.freq_to_keys[freq][key]
+        if not self.freq_to_keys[freq]:
+            del self.freq_to_keys[freq]
+            if self.min_freq == freq:
+                self.min_freq += 1
+        self.freq_to_keys[freq + 1][key] = None
+        self.key_to_val_freq[key] = (val, freq + 1)
+
+    def get(self, key: int) -> int:
+        if key not in self.key_to_val_freq:
+            return -1
+        self._bump(key)
+        return self.key_to_val_freq[key][0]
+
+    def put(self, key: int, val: int) -> None:
+        if self.cap == 0:
+            return
+        if key in self.key_to_val_freq:
+            self.key_to_val_freq[key] = (val, self.key_to_val_freq[key][1])
+            self._bump(key)
+            return
+        if len(self.key_to_val_freq) >= self.cap:
+            evict_key, _ = self.freq_to_keys[self.min_freq].popitem(last=False)
+            del self.key_to_val_freq[evict_key]
+            if not self.freq_to_keys[self.min_freq]:
+                del self.freq_to_keys[self.min_freq]
+        self.key_to_val_freq[key] = (val, 1)
+        self.freq_to_keys[1][key] = None
+        self.min_freq = 1
+\`\`\`
+
+### Complexity
+O(1) per op. Uses \`OrderedDict\` as the per-frequency LRU — technically a hash + DLL under the hood, which is what you'd hand-roll if not allowed.
+
+### Gotchas
+- Reset \`min_freq = 1\` on every new insert. Otherwise a fresh key with freq 1 can be missed by the eviction pointer.
+- Only bump \`min_freq\` when the *current* min bucket empties — not every time a key bumps.
+- Capacity-zero edge case will crash the eviction path if not guarded.
+- Interviewer will probe: "why can't we use a heap?" → heap ops are O(log n); LFU is asked precisely because O(1) is the challenge.`,
+    category: "Object Design",
+  },
+  {
+    id: "token-bucket-rate-limiter",
+    term: "Token bucket rate limiter",
+    prompt:
+      "Implement a thread-safe rate limiter that allows N requests per second with burst capacity B. `allow()` returns True if the request is permitted.",
+    keyPoint:
+      "State: `tokens`, `last_refill`, `rate`, `capacity`. On `allow()`: refill lazily — `tokens = min(cap, tokens + (now - last_refill) * rate)`, update `last_refill`, then `if tokens >= 1: tokens -= 1; return True`. Lock for thread-safety. No background thread — refill happens on-check.",
+    answer: `### Intuition
+Tokens accumulate in a bucket at a steady rate up to a cap (the burst). Each request consumes one. If the bucket is empty, reject. The trick is **lazy refill**: don't run a background thread — compute how many tokens *should have* accumulated since the last check and add them in.
+
+### Code
+\`\`\`python
+import threading
+import time
+
+class TokenBucket:
+    def __init__(self, rate: float, capacity: float):
+        """rate = tokens per second; capacity = max burst"""
+        self.rate = rate
+        self.capacity = capacity
+        self.tokens = capacity
+        self.last_refill = time.monotonic()
+        self.lock = threading.Lock()
+
+    def allow(self, cost: float = 1.0) -> bool:
+        with self.lock:
+            now = time.monotonic()
+            elapsed = now - self.last_refill
+            self.tokens = min(self.capacity, self.tokens + elapsed * self.rate)
+            self.last_refill = now
+            if self.tokens >= cost:
+                self.tokens -= cost
+                return True
+            return False
+\`\`\`
+
+### Complexity
+O(1) per check, O(1) space per limiter.
+
+### Distributed version
+Store \`(tokens, last_refill)\` in Redis; use a Lua script for the read-modify-write to make it atomic. Cost: ~1 Redis round-trip per request. For very high QPS: local bucket per node with periodic sync to Redis (drift up to sync interval, but big latency win).
+
+### Gotchas
+- Use \`time.monotonic()\`, not \`time.time()\` — wall-clock can jump backward on NTP corrections and produce negative elapsed.
+- \`capacity\` can equal \`rate\` (no burst allowed) or be larger (bursty traffic OK).
+- Interviewer follow-up: "what if a client sends 1000 requests at once and the bucket has 10 tokens?" → 10 pass, 990 rejected — the client should back off. This is the correct behavior; the alternative (queue them) is a leaky bucket, not token bucket.
+- Token bucket allows bursts up to \`capacity\`; leaky bucket enforces a constant output rate. Know the difference cold.`,
+    category: "Object Design",
+  },
+  {
+    id: "sliding-window-rate-limiter",
+    term: "Sliding window rate limiter",
+    prompt:
+      "Implement a rate limiter that allows at most N requests in any rolling W-second window. Compare the exact-log approach against the approximate-counter approach.",
+    keyPoint:
+      "Two variants. (1) **Sliding window log**: deque of request timestamps; on check drop entries older than `now - W`, allow if `len(dq) < N`. Exact but O(k) per check, O(k) memory per client. (2) **Sliding window counter**: two fixed buckets; approximate count = `prev_count * ((W - elapsed_in_curr) / W) + curr_count`. O(1) space and time; worst-case ~25% error.",
+    answer: `### Variant 1 — Sliding window log (exact)
+\`\`\`python
+from collections import deque
+import threading
+import time
+
+class SlidingWindowLog:
+    def __init__(self, limit: int, window_sec: float):
+        self.limit = limit
+        self.window = window_sec
+        self.hits: dict[str, deque[float]] = {}
+        self.lock = threading.Lock()
+
+    def allow(self, key: str) -> bool:
+        now = time.monotonic()
+        with self.lock:
+            dq = self.hits.setdefault(key, deque())
+            while dq and dq[0] <= now - self.window:
+                dq.popleft()
+            if len(dq) < self.limit:
+                dq.append(now)
+                return True
+            return False
+\`\`\`
+Cost: O(hits-in-window) per check, O(hits-in-window) memory per key. Fine for low limits (e.g. 100/min per user); explodes at 10K/sec.
+
+### Variant 2 — Sliding window counter (approximate)
+\`\`\`python
+import time
+
+class SlidingWindowCounter:
+    def __init__(self, limit: int, window_sec: float):
+        self.limit = limit
+        self.window = window_sec
+        self.curr_bucket = 0
+        self.prev_bucket = 0
+        self.curr_start = time.monotonic()
+
+    def allow(self) -> bool:
+        now = time.monotonic()
+        elapsed = now - self.curr_start
+        if elapsed >= self.window:
+            # roll buckets — if elapsed > 2*window, both go to zero
+            self.prev_bucket = 0 if elapsed >= 2 * self.window else self.curr_bucket
+            self.curr_bucket = 0
+            self.curr_start = now
+            elapsed = 0
+        weight = (self.window - elapsed) / self.window
+        approx = self.prev_bucket * weight + self.curr_bucket
+        if approx < self.limit:
+            self.curr_bucket += 1
+            return True
+        return False
+\`\`\`
+Cost: O(1). Worst-case error: overestimates by up to 25% when traffic in the previous window was front-loaded. Cloudflare uses this in production because O(1) memory at billions of keys matters more than perfect accuracy.
+
+### When to pick which
+- **Exact quotas** (billing, security): log.
+- **Rough throttling** at massive scale: counter.
+- **Distributed**: counter, backed by Redis \`INCR\` on the current bucket key, TTL = 2W.
+
+### Gotchas
+- Log approach: memory grows with QPS. Cap per-key or auto-evict.
+- Counter approach: interviewer will ask about the accuracy bound — derive it. Worst case: all \`limit\` requests hit at the start of the prev window; \`elapsed = W\`; weight = 0 for prev, but that's the far edge. Skew is largest immediately after a window boundary.
+- Both need per-client keying (usually user_id or IP).`,
+    category: "Object Design",
+  },
+  {
+    id: "kv-store-with-ttl",
+    term: "KV store with TTL",
+    prompt:
+      "Design an in-memory key-value store supporting `set(key, value, ttl_seconds)`, `get(key)` returning None if expired or missing, and `delete(key)`. Handle memory cleanup for expired entries.",
+    keyPoint:
+      "Store `(value, expiry_ts)` per key. Lazy expiry on `get` (cheap). For memory reclamation add a background sweep, or a min-heap of `(expiry, key)` popped opportunistically. Heap gotcha: entries become stale on overwrite/delete — always verify the popped `expiry` matches the current map entry before evicting.",
+    answer: `### Approach
+Two-layer:
+1. **Hashmap** \`key → (value, expiry_ts)\`. \`get\` checks \`now < expiry_ts\`; if not, delete lazily and return None. Cheap.
+2. **Lazy eviction alone leaks memory** for keys that are set-with-TTL but never read again. Add a **min-heap** \`(expiry_ts, key)\` and a periodic sweep, OR a background thread that pops due entries.
+
+### Code
+\`\`\`python
+import heapq
+import threading
+import time
+
+class KVStoreTTL:
+    def __init__(self):
+        self.store: dict[str, tuple[str, float]] = {}
+        self.heap: list[tuple[float, str]] = []
+        self.lock = threading.Lock()
+
+    def set(self, key: str, value: str, ttl_sec: float) -> None:
+        expiry = time.monotonic() + ttl_sec
+        with self.lock:
+            self.store[key] = (value, expiry)
+            heapq.heappush(self.heap, (expiry, key))
+
+    def get(self, key: str) -> str | None:
+        with self.lock:
+            if key not in self.store:
+                return None
+            value, expiry = self.store[key]
+            if time.monotonic() >= expiry:
+                del self.store[key]
+                return None
+            return value
+
+    def delete(self, key: str) -> None:
+        with self.lock:
+            self.store.pop(key, None)
+
+    def sweep(self, max_evictions: int = 100) -> int:
+        """Pop expired entries from the heap. Call periodically."""
+        now = time.monotonic()
+        evicted = 0
+        with self.lock:
+            while self.heap and self.heap[0][0] <= now and evicted < max_evictions:
+                expiry, key = heapq.heappop(self.heap)
+                # Stale heap entry: key was overwritten with new TTL, or already deleted
+                if key in self.store and self.store[key][1] == expiry:
+                    del self.store[key]
+                    evicted += 1
+        return evicted
+\`\`\`
+
+### Complexity
+- \`get\` / \`set\` / \`delete\`: O(log n) for \`set\` (heap push), O(1) for the rest.
+- Space: O(n) map + O(n_writes_ever) heap in the worst case if you never sweep. Sweep aggressively.
+
+### Gotchas
+- **Stale heap entries** are the classic bug. When you overwrite with a new TTL, the old \`(expiry, key)\` stays in the heap. On pop, verify \`self.store[key][1] == expiry\` before deleting — otherwise you'll evict the live value.
+- **Redis actually does this**: lazy expiry on access + a random-sampling active expirer, not a heap. Heap is fine at small scale; sampling is O(1) and simpler at Redis's scale.
+- **Clock**: monotonic, not wall-clock. Absolute expiry stored as timestamp, not TTL, so refills don't shift the deadline.`,
+    category: "Object Design",
+  },
+  {
+    id: "time-based-kv",
+    term: "Time-based key-value store",
+    prompt:
+      "Implement `set(key, value, timestamp)` and `get(key, timestamp)` where get returns the value with the greatest timestamp ≤ the requested one (or empty string if none). Timestamps in set() are strictly increasing per key. (LeetCode 981.)",
+    keyPoint:
+      "Hash `key → parallel arrays (times[], values[])`. Because timestamps are monotonic per key, `set` is O(1) append. `get`: `bisect_right(times, target) - 1` gives the index of the largest time ≤ target; return empty string if -1. O(log n) per get.",
+    answer: `### Approach
+Two facts drive the design:
+1. Per-key timestamps arrive **monotonically increasing** → \`set\` is a plain append, no sorting.
+2. Query is "largest ts ≤ target" → binary search.
+
+Use parallel arrays (not tuples) so \`bisect\` searches the numbers directly without a key function.
+
+### Code
+\`\`\`python
+from bisect import bisect_right
+from collections import defaultdict
+
+class TimeMap:
+    def __init__(self):
+        self.times: dict[str, list[int]] = defaultdict(list)
+        self.values: dict[str, list[str]] = defaultdict(list)
+
+    def set(self, key: str, value: str, timestamp: int) -> None:
+        self.times[key].append(timestamp)
+        self.values[key].append(value)
+
+    def get(self, key: str, timestamp: int) -> str:
+        if key not in self.times:
+            return ""
+        ts = self.times[key]
+        idx = bisect_right(ts, timestamp) - 1
+        return self.values[key][idx] if idx >= 0 else ""
+\`\`\`
+
+### Complexity
+- \`set\`: O(1)
+- \`get\`: O(log n) where n is writes to that key.
+- Space: O(total writes).
+
+### Why this is a Google favorite
+It tests three things in one problem:
+1. Do you notice the monotonic-timestamp guarantee and exploit it?
+2. Can you reach for binary search (\`bisect_right - 1\` idiom) confidently?
+3. Do you handle the "no value yet" edge case cleanly?
+
+### Gotchas
+- \`bisect_right - 1\` gives you the greatest \`ts ≤ target\`. \`bisect_left\` would give you \`< target\`, which is wrong (equal timestamp should match).
+- If timestamps were **not** monotonic per key, you'd need an insertion binary search (\`insort\`) for O(n) inserts. Always confirm the constraint in interview.
+- Parallel arrays (not \`list[tuple]\`) so \`bisect\` compares raw ints and stays O(log n) without lambdas.`,
+    category: "Object Design",
+  },
+  {
+    id: "logger-rate-limiter",
+    term: "Logger rate limiter",
+    prompt:
+      "Implement `shouldPrintMessage(timestamp, message)` — returns True if the same message has not been printed in the last 10 seconds; otherwise False. Timestamps are non-decreasing. (LeetCode 359.)",
+    keyPoint:
+      "Hash `message → last_allowed_ts`. If `timestamp < last + 10`, return False. Otherwise update to `timestamp`, return True. Simple; the real question is how you bound memory: prune stale entries periodically, or wrap the map in an LRU with a max size.",
+    answer: `### Basic version
+\`\`\`python
+class Logger:
+    def __init__(self):
+        self.last_seen: dict[str, int] = {}
+
+    def shouldPrintMessage(self, timestamp: int, message: str) -> bool:
+        last = self.last_seen.get(message)
+        if last is not None and timestamp < last + 10:
+            return False
+        self.last_seen[message] = timestamp
+        return True
+\`\`\`
+
+O(1) per call. Passes LeetCode.
+
+### The real interview question: memory
+The map grows unbounded — every unique message stays forever. At scale (Cloudflare-style log dedup for millions of unique messages), this is the actual problem.
+
+**Fix 1 — periodic prune:** after every K calls, drop entries with \`last_seen[msg] < now - 10\`.
+\`\`\`python
+def _maybe_prune(self, now: int) -> None:
+    self.calls_since_prune += 1
+    if self.calls_since_prune < 1000:
+        return
+    cutoff = now - 10
+    self.last_seen = {m: t for m, t in self.last_seen.items() if t >= cutoff}
+    self.calls_since_prune = 0
+\`\`\`
+
+**Fix 2 — deque of (ts, msg) + set:** exact bound on memory (only messages within window are stored). Slightly higher per-call cost.
+\`\`\`python
+from collections import deque
+
+class LoggerBounded:
+    def __init__(self):
+        self.q: deque[tuple[int, str]] = deque()
+        self.seen: set[str] = set()
+
+    def shouldPrintMessage(self, timestamp: int, message: str) -> bool:
+        while self.q and self.q[0][0] <= timestamp - 10:
+            _, old_msg = self.q.popleft()
+            self.seen.discard(old_msg)
+        if message in self.seen:
+            return False
+        self.seen.add(message)
+        self.q.append((timestamp, message))
+        return True
+\`\`\`
+
+### Tradeoff
+- **Dict-only**: O(1) always, unbounded memory.
+- **Deque + set**: bounded memory (only in-window entries), but each call may do amortized O(k) cleanup.
+
+Interview signal: state both, pick based on the interviewer's follow-up ("what if you have 100M unique messages?").
+
+### Gotcha
+The problem says "in the last 10 seconds" — that's inclusive at second 10 (a message printed at t=0 blocks at t=1..9, allows at t=10). The condition \`timestamp < last + 10\` gets this right; \`<=\` would be off by one.`,
+    category: "Object Design",
+  },
+  {
+    id: "hit-counter",
+    term: "Hit counter (past 5 minutes)",
+    prompt:
+      "Design a hit counter. `hit(ts)` records a hit at time ts. `getHits(ts)` returns the number of hits in the past 300 seconds (from `ts - 299` through `ts`). Timestamps are monotonic. (LeetCode 362.)",
+    keyPoint:
+      "Two solutions. (1) **Deque of timestamps**: append on hit; on query pop from front while `front <= ts - 300`, return `len`. Simple, O(1) amortized. (2) **Circular buffer of 300 (ts, count) buckets** keyed by `ts % 300`: reset a bucket when its stored ts differs from the current second. O(1) per op and constant space — scales to millions of hits per second.",
+    answer: `### Solution 1 — deque (simple)
+\`\`\`python
+from collections import deque
+
+class HitCounter:
+    def __init__(self):
+        self.hits: deque[int] = deque()
+
+    def hit(self, timestamp: int) -> None:
+        self.hits.append(timestamp)
+
+    def getHits(self, timestamp: int) -> int:
+        cutoff = timestamp - 299
+        while self.hits and self.hits[0] < cutoff:
+            self.hits.popleft()
+        return len(self.hits)
+\`\`\`
+Fine for hundreds of hits/sec. At millions/sec, the deque explodes.
+
+### Solution 2 — bucketed circular buffer (scales)
+Idea: aggregate hits into 300 per-second buckets, indexed by \`ts % 300\`. Each bucket stores \`(the_ts_it_represents, count_at_that_ts)\`. When you touch a bucket, if its stored ts doesn't match \`ts\`, it's from 300+ seconds ago — reset it.
+
+\`\`\`python
+class HitCounter:
+    def __init__(self):
+        self.buckets: list[list[int]] = [[0, 0] for _ in range(300)]  # [ts, count]
+
+    def hit(self, timestamp: int) -> None:
+        idx = timestamp % 300
+        if self.buckets[idx][0] != timestamp:
+            self.buckets[idx] = [timestamp, 1]
+        else:
+            self.buckets[idx][1] += 1
+
+    def getHits(self, timestamp: int) -> int:
+        cutoff = timestamp - 299
+        return sum(cnt for ts, cnt in self.buckets if ts >= cutoff)
+\`\`\`
+O(1) hit, O(300) query — but 300 is a constant, and space is a constant 300 slots regardless of hit rate. **This is the version that scales.**
+
+### Complexity comparison
+| | Solution 1 | Solution 2 |
+|---|---|---|
+| \`hit\` | O(1) | O(1) |
+| \`getHits\` | O(k) amortized, k = hits in window | O(300) always |
+| Space | O(hits in window) | O(300) |
+
+### Gotchas
+- "Past 5 minutes" = last 300 seconds inclusive. \`timestamp - 299\` gives you 300 distinct seconds (\`ts - 299\` through \`ts\`). Off-by-one bait.
+- Interviewer follow-up: "what if the window is 1 hour?" → 3600 buckets. Still O(1). "What about 1 day?" → 86400 — memory starts to matter, consider coarser buckets (10s or 60s granularity).
+- Solution 2 handles bursts: a million hits at the same second only bumps \`count\` — no memory growth.`,
+    category: "Object Design",
+  },
+  {
+    id: "bounded-blocking-queue",
+    term: "Bounded blocking queue",
+    prompt:
+      "Implement a thread-safe queue with fixed capacity. `put(item)` blocks if the queue is full; `take()` blocks if empty. Producers and consumers use it concurrently.",
+    keyPoint:
+      "One `threading.Lock` + two `Condition` variables sharing it (`not_full`, `not_empty`). `put`: while `len == cap: not_full.wait()`; append; `not_empty.notify()`. `take`: while empty: `not_empty.wait()`; pop; `not_full.notify()`. Use `while` not `if` — spurious wakeups are real.",
+    answer: `### Approach
+Classic producer-consumer. Two conditions to signal state transitions, one lock to protect the buffer. Notify the *other* side after each successful op.
+
+### Code
+\`\`\`python
+import threading
+from collections import deque
+
+class BoundedBlockingQueue:
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.buffer: deque = deque()
+        self.lock = threading.Lock()
+        self.not_full = threading.Condition(self.lock)
+        self.not_empty = threading.Condition(self.lock)
+
+    def put(self, item) -> None:
+        with self.not_full:
+            while len(self.buffer) == self.capacity:
+                self.not_full.wait()
+            self.buffer.append(item)
+            self.not_empty.notify()
+
+    def take(self):
+        with self.not_empty:
+            while not self.buffer:
+                self.not_empty.wait()
+            item = self.buffer.popleft()
+            self.not_full.notify()
+            return item
+
+    def size(self) -> int:
+        with self.lock:
+            return len(self.buffer)
+\`\`\`
+
+### Why \`while\`, not \`if\`
+When a condition is notified, the waiter re-acquires the lock — but another waiter might grab it first and drain the state that made the notify meaningful. On wake, re-check. This is also the standard defense against **spurious wakeups** (POSIX and Python both allow them).
+
+### Why two conditions
+You could use one condition and \`notify_all\` on every op — correct but wakes all waiters and they'll thrash re-acquiring the lock. Two conditions let you wake exactly the side that can make progress.
+
+### Complexity
+O(1) per op (amortized). Contention is the real cost.
+
+### Gotchas
+- \`notify()\` wakes one; \`notify_all()\` wakes all. \`notify()\` is enough here because each successful op only creates one new slot / one new item.
+- Don't hold the lock during blocking calls to external services from inside \`put\` / \`take\`. Copy the item out first, then release, then process.
+- Python's stdlib \`queue.Queue\` already implements this — in an interview, hand-roll it; in production, use \`queue.Queue\`.
+- **Priority variant**: swap \`deque\` for a heap. **Multi-consumer fairness**: use a \`Semaphore\` per slot instead of a condition.`,
+    category: "Object Design",
+  },
+  {
+    id: "consistent-hashing-ring",
+    term: "Consistent hashing ring",
+    prompt:
+      "Implement a consistent hashing ring: `add_node(name)`, `remove_node(name)`, `get_node(key)` returns the node responsible for the key. Adding/removing a node should remap only ~1/N of keys.",
+    keyPoint:
+      "Hash each node to K virtual points (100–200) on a `[0, 2^32)` ring, kept as a sorted list. `get_node`: hash the key, `bisect_right` the ring, wrap to index 0 if past the end, return the node at that point. Virtual nodes make the distribution even.",
+    answer: `### Why consistent hashing
+Naive \`hash(key) % N\` remaps almost every key when N changes. Consistent hashing remaps ~1/N — critical for cache clusters (Memcached, DynamoDB, sharded Redis) where remapping = cache miss stampede or data movement.
+
+### Structure
+- **Ring**: sorted list of \`(ring_position, node_name)\` for all virtual nodes.
+- **Lookup**: hash the key, find the first ring position ≥ the hash (binary search), wrap to the start if past the end.
+- **Virtual nodes** (V ≈ 100–200 per real node): a single hash-per-node gives terrible load skew because random points cluster. V virtual nodes per real node smooth out the distribution.
+
+### Code
+\`\`\`python
+from bisect import bisect_right, insort
+import hashlib
+
+class ConsistentHashRing:
+    def __init__(self, vnodes: int = 150):
+        self.vnodes = vnodes
+        self.ring: list[int] = []                    # sorted vnode positions
+        self.position_to_node: dict[int, str] = {}
+
+    @staticmethod
+    def _hash(key: str) -> int:
+        return int(hashlib.md5(key.encode()).hexdigest(), 16) % (2 ** 32)
+
+    def add_node(self, name: str) -> None:
+        for i in range(self.vnodes):
+            pos = self._hash(f"{name}#{i}")
+            if pos in self.position_to_node:
+                continue                              # rare collision, skip
+            insort(self.ring, pos)
+            self.position_to_node[pos] = name
+
+    def remove_node(self, name: str) -> None:
+        for i in range(self.vnodes):
+            pos = self._hash(f"{name}#{i}")
+            if self.position_to_node.get(pos) == name:
+                self.ring.remove(pos)                 # O(V*N); rare op
+                del self.position_to_node[pos]
+
+    def get_node(self, key: str) -> str | None:
+        if not self.ring:
+            return None
+        h = self._hash(key)
+        idx = bisect_right(self.ring, h) % len(self.ring)
+        return self.position_to_node[self.ring[idx]]
+\`\`\`
+
+### Complexity
+- \`get_node\`: O(log(V*N)) — one binary search.
+- \`add_node\`: O(V * log(V*N)) — V inserts.
+- \`remove_node\`: O(V*N) as written (linear \`list.remove\`). Fine because add/remove are rare vs get.
+- Space: O(V*N).
+
+### Gotchas
+- **MD5 is fine** for consistent hashing (not for security). Faster alternatives: MurmurHash3, xxHash. Don't use \`hash()\` — Python randomizes it per-process.
+- **Vnodes count**: 100–200 balances distribution quality vs memory. Fewer than ~40 gives visibly uneven load.
+- **Replication**: to place K replicas of a key, walk the ring K times taking distinct real nodes (skip vnodes of nodes you've already picked). This is how Dynamo and Cassandra place replicas.
+- **Follow-up**: rendezvous (HRW) hashing avoids the ring entirely — for each key, hash \`(key, node)\` for every node and pick max. O(N) per lookup but no ring bookkeeping. Good for small N.`,
+    category: "Object Design",
+  },
+  {
+    id: "snapshot-versioned-map",
+    term: "Snapshot / versioned map",
+    prompt:
+      "Implement a map supporting `put(key, value)`, `snapshot()` returning a snapshot id, and `get(key, snap_id)` returning the value at that snapshot (or None if the key wasn't set by then). Snapshots must be O(1); reads must scale with per-key history, not total map size.",
+    keyPoint:
+      "Per-key sorted list of `(snap_id_at_write, value)`. `snapshot()` increments a global counter — O(1), no data copied. `get(k, snap)`: binary search rightmost write with `snap_id ≤ snap`. Copy-on-write is per-key-per-write, not per-snapshot — this is how MVCC actually works.",
+    answer: `### Why this problem matters
+This is the coding-round version of "how does MVCC work?" Snapshots must be cheap (databases take them all the time), and reads must not walk the whole map — only the relevant key's history.
+
+### Approach
+- **Global \`current_snap\`** counter, starts at 0.
+- **Per-key history**: sorted list of \`(snap_at_write, value)\`. Every \`put\` appends. Snapshots at write time are strictly increasing per key (because \`current_snap\` only grows), so appends stay sorted — no insert cost.
+- **\`snapshot()\`**: just \`current_snap += 1\`; return the new id. No data copied.
+- **\`get(k, snap)\`**: \`bisect_right\` for \`snap + 1\`, take index - 1.
+
+### Code
+\`\`\`python
+from bisect import bisect_right
+from collections import defaultdict
+
+class SnapshotMap:
+    def __init__(self):
+        self._snap = 0
+        self._history: dict[str, list[tuple[int, object]]] = defaultdict(list)
+
+    def put(self, key: str, value) -> None:
+        history = self._history[key]
+        # if this snap already has a write, overwrite in place (last-write-wins within a snap)
+        if history and history[-1][0] == self._snap:
+            history[-1] = (self._snap, value)
+        else:
+            history.append((self._snap, value))
+
+    def snapshot(self) -> int:
+        self._snap += 1
+        return self._snap - 1   # return the id we just finalized
+
+    def get(self, key: str, snap_id: int):
+        history = self._history.get(key)
+        if not history:
+            return None
+        idx = bisect_right(history, (snap_id, float("inf"))) - 1
+        if idx < 0:
+            return None
+        return history[idx][1]
+\`\`\`
+
+### Complexity
+- \`put\`: O(1) amortized.
+- \`snapshot\`: O(1).
+- \`get\`: O(log h) where h = writes to that key.
+- Space: O(total writes) — history grows.
+
+### The MVCC connection
+This is essentially Postgres's tuple versioning stripped to its core:
+- Each write creates a new version tagged with the transaction (analogous to \`snap_id\`).
+- Reads pick the version visible at their snapshot.
+- Old versions are eventually vacuumed once no active snapshot needs them → that's the missing piece here (GC of history entries older than the oldest live snapshot).
+
+### Gotchas
+- \`bisect_right(history, (snap_id, float('inf')))\` — the sentinel ensures you find the rightmost entry with \`snap_at_write ≤ snap_id\`, ignoring the value tuple slot.
+- Same-snapshot writes to the same key should overwrite, not append — otherwise \`get\` at that snapshot returns the first write, not the last.
+- Follow-up: how do you GC? Keep the set of live snapshots; a per-key version is safe to drop iff its next-version's snap is ≤ every live snapshot. Exactly Postgres's problem.`,
+    category: "Object Design",
+  },
 ];

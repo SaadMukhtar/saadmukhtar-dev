@@ -172,44 +172,46 @@ function CardModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-2 backdrop-blur-sm sm:p-4"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-2xl border border-black/[0.10] bg-white p-8 dark:border-white/[0.20] dark:bg-black"
+        className="relative flex max-h-[calc(100dvh-1rem)] w-full max-w-2xl flex-col overflow-hidden border border-black/[0.10] bg-white dark:border-white/[0.20] dark:bg-black sm:max-h-[calc(100dvh-2rem)]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 text-neutral-500 transition-colors hover:text-black dark:text-neutral-400 dark:hover:text-white"
+          className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-neutral-500 backdrop-blur transition-colors hover:text-black dark:bg-black/80 dark:text-neutral-400 dark:hover:text-white sm:right-4 sm:top-4"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
             <path d="M3 3l10 10M13 3L3 13" />
           </svg>
         </button>
-        <p className="mb-2 flex items-center gap-1.5">
-          <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} aria-hidden />
-          <span className={`font-mono text-xs ${style.text}`}>{card.category}</span>
-        </p>
-        <h3 className="mb-4 text-2xl font-semibold text-black dark:text-white">
-          {card.term}
-        </h3>
-        <p className="mb-6 text-base leading-relaxed text-neutral-700 dark:text-neutral-200">
-          {card.prompt}
-        </p>
-        {!revealed ? (
-          <button
-            onClick={() => setRevealed(true)}
-            className="rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-75 dark:bg-white dark:text-black"
-          >
-            Reveal <span className="opacity-60">(Space)</span>
-          </button>
-        ) : (
-          <div className="border-t border-black/[0.06] pt-6 dark:border-white/[0.06]">
-            <RevealedAnswer card={card} />
-          </div>
-        )}
+        <div className="overflow-y-auto overscroll-contain p-5 pt-6 sm:p-8">
+          <p className="mb-2 flex items-center gap-1.5 pr-8">
+            <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} aria-hidden />
+            <span className={`font-mono text-xs ${style.text}`}>{card.category}</span>
+          </p>
+          <h3 className="mb-4 pr-8 text-2xl font-semibold text-black dark:text-white">
+            {card.term}
+          </h3>
+          <p className="mb-6 text-base leading-relaxed text-neutral-700 dark:text-neutral-200">
+            {card.prompt}
+          </p>
+          {!revealed ? (
+            <button
+              onClick={() => setRevealed(true)}
+              className="rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-75 dark:bg-white dark:text-black"
+            >
+              Reveal <span className="opacity-60">(Space)</span>
+            </button>
+          ) : (
+            <div className="border-t border-black/[0.06] pt-6 dark:border-white/[0.06]">
+              <RevealedAnswer card={card} />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -98,6 +98,11 @@ export const CATEGORY_STYLES: Record<string, CategoryStyle> = {
     text: "text-slate-600 dark:text-slate-400",
     bg: "bg-slate-500/10 dark:bg-slate-400/10",
   },
+  "Object Design": {
+    dot: "bg-stone-500",
+    text: "text-stone-600 dark:text-stone-400",
+    bg: "bg-stone-500/10 dark:bg-stone-400/10",
+  },
 };
 
 const FALLBACK_STYLE: CategoryStyle = {

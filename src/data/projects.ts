@@ -11,19 +11,10 @@ export const projects: Project[] = [
   {
     name: "Observability Platform",
     description:
-      "End-to-end telemetry (metrics, logs, traces) at high write throughput with a query engine and dashboard",
-    stack: ["Go", "Kafka", "ClickHouse", "OpenTelemetry"],
+      "End-to-end telemetry (metrics, logs, traces) at high write throughput with a query engine and dashboard — including LLM observability: token accounting, prompt tracing, cost/latency percentiles, and quality regression detection",
+    stack: ["Go", "Kafka", "ClickHouse", "OpenTelemetry", "Claude API"],
     status: "building",
     niche: "observability",
-    featured: true,
-  },
-  {
-    name: "LLM Observability Platform",
-    description:
-      "Token accounting, prompt tracing, cost/latency percentiles, and quality regression detection for LLM apps",
-    stack: ["Go", "ClickHouse", "OpenTelemetry", "Claude API"],
-    status: "planned",
-    niche: "ai-observability",
     featured: true,
   },
   {

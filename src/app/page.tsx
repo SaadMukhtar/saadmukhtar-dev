@@ -90,51 +90,32 @@ export default function Home() {
 
       <main className="relative z-10 mx-auto max-w-4xl px-6">
         {/* Hero */}
-        <section className="relative pb-32 pt-48">
-          {/* Radial glow behind hero */}
-          <div className="pointer-events-none absolute -top-16 left-0 h-80 w-80 rounded-full bg-white/[0.03] blur-3xl dark:bg-white/[0.04]" />
-
-          {/* Availability badge */}
-          <div className="animate-fade-up mb-10 inline-flex items-center gap-2 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-3.5 py-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-            Available · Open to new roles
-          </div>
-
-          {/* Photo + name block */}
-          <div className="animate-fade-up anim-delay-1 mb-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
+        <section className="pb-8 pt-24">
+          <div className="animate-fade-up flex flex-col items-start gap-5 sm:flex-row sm:items-center">
             <Image
               src="/pfp.png"
               alt="Saad Mukhtar"
-              width={120}
-              height={120}
-              className="h-24 w-24 shrink-0 rounded-full object-cover sm:h-[120px] sm:w-[120px]"
+              width={80}
+              height={80}
+              className="h-16 w-16 shrink-0 rounded-full object-cover sm:h-20 sm:w-20"
             />
-            <div className="min-w-0">
-              <h1 className="mb-3 text-4xl font-semibold tracking-tight text-black dark:text-white sm:text-5xl md:text-6xl">
-                Saad Mukhtar.
-              </h1>
-              <p className="mb-2 text-base text-neutral-600 dark:text-neutral-300 sm:text-lg">
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white sm:text-4xl">
+                  Saad Mukhtar
+                </h1>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] px-2.5 py-0.5 text-xs text-neutral-600 dark:text-neutral-400">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                  Open to new roles
+                </span>
+              </div>
+              <p className="text-sm text-neutral-600 dark:text-neutral-300 sm:text-base">
                 Software Engineer · Distributed Systems · Infrastructure
               </p>
-              <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300 sm:text-base">
-                Capital One Software · Tesla · PlayStation · Super.com · UWaterloo CS
-              </p>
             </div>
-          </div>
-
-          <div className="animate-fade-up anim-delay-2 flex flex-wrap gap-3">
-            <a
-              href="#projects"
-              className="inline-flex items-center gap-2 rounded-full bg-black dark:bg-white px-5 py-2.5 text-sm font-medium text-white dark:text-black transition-opacity hover:opacity-75"
-            >
-              View Projects
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <path d="M6 1v10M1 6l5 5 5-5" />
-              </svg>
-            </a>
             <a
               href="mailto:saadmukhtar01@gmail.com"
-              className="inline-flex items-center gap-2 rounded-full border border-black/15 dark:border-white/15 px-5 py-2.5 text-sm text-black dark:text-white transition-colors hover:border-black/35 dark:hover:border-white/35"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-black dark:bg-white px-4 py-2 text-sm font-medium text-white dark:text-black transition-opacity hover:opacity-75"
             >
               Get in Touch →
             </a>
@@ -143,92 +124,30 @@ export default function Home() {
 
         <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
 
-        {/* Projects */}
-        <section id="projects" className="py-24">
-          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-            Building
-          </p>
-          <div className="grid sm:grid-cols-2">
-            {featuredProjects.map((project) => (
-              <div
-                key={project.name}
-                className="scroll-reveal group border border-black/[0.10] dark:border-white/[0.10] p-6 transition-all duration-200 hover:-translate-y-0.5 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
-              >
-                <p className="mb-1 font-mono text-xs text-neutral-500 dark:text-neutral-500">
-                  {project.niche}
-                </p>
-                <div className="mb-2 flex items-start justify-between gap-4">
-                  <h3 className="font-medium text-black dark:text-white">{project.name}</h3>
-                  {project.status === "building" ? (
-                    <span className="mt-0.5 flex shrink-0 items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                      building
-                    </span>
-                  ) : (
-                    <span className="mt-0.5 shrink-0 text-xs text-black/20 dark:text-white/20">
-                      planned
-                    </span>
-                  )}
-                </div>
-                <p className="mb-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-                  {project.description}
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  {project.stack.map((tech) => (
-                    <span
-                      key={tech}
-                      className="rounded bg-black/[0.04] dark:bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs text-neutral-600 dark:text-neutral-300"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="scroll-reveal mt-8">
-            <Link
-              href="/projects"
-              className="inline-flex items-center gap-1.5 text-sm text-neutral-600 dark:text-neutral-300 transition-colors hover:text-black dark:hover:text-white"
-            >
-              See all projects
-              <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-        </section>
-
-        <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
-
         {/* Experience */}
-        <section className="py-24">
-          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+        <section className="py-8">
+          <p className="mb-5 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
             Work
           </p>
-          <div className="space-y-10">
+          <div className="space-y-5">
             {experience.map((job, i) => (
-              <div
-                key={`${job.company}-${i}`}
-                className="scroll-reveal"
-              >
-                <div className="flex items-start justify-between gap-6 mb-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      {job.current && (
-                        <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-emerald-500" />
-                      )}
-                      <span className="font-medium text-black dark:text-white">{job.company}</span>
-                      {job.subtitle && (
-                        <span className="text-xs text-neutral-500 dark:text-neutral-400">· {job.subtitle}</span>
-                      )}
-                    </div>
-                    <p className="mt-0.5 text-sm text-neutral-600 dark:text-neutral-300">{job.role}</p>
+              <div key={`${job.company}-${i}`}>
+                <div className="mb-1.5 flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+                  <div className="flex flex-wrap items-baseline gap-x-2">
+                    {job.current && (
+                      <span className="h-1.5 w-1.5 shrink-0 self-center animate-pulse rounded-full bg-emerald-500" />
+                    )}
+                    <span className="font-medium text-black dark:text-white">{job.company}</span>
+                    {job.subtitle && (
+                      <span className="text-xs text-neutral-500 dark:text-neutral-400">· {job.subtitle}</span>
+                    )}
+                    <span className="text-sm text-neutral-600 dark:text-neutral-300">— {job.role}</span>
                   </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{job.period}</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{job.location}</p>
-                  </div>
+                  <p className="shrink-0 text-xs text-neutral-500 sm:text-right dark:text-neutral-400">
+                    {job.period} · {job.location}
+                  </p>
                 </div>
-                <ul className="space-y-2 pl-4 border-l border-black/[0.06] dark:border-white/[0.06]">
+                <ul className="space-y-1 border-l border-black/[0.06] pl-4 dark:border-white/[0.06]">
                   {job.bullets.map((bullet, j) => (
                     <li key={j} className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
                       {boldify(bullet)}
@@ -242,38 +161,83 @@ export default function Home() {
 
         <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
 
-        {/* Education */}
-        <section className="py-24">
-          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-            Education
-          </p>
-          <div className="scroll-reveal flex items-start justify-between gap-6">
-            <div>
-              <span className="font-medium text-black dark:text-white">University of Waterloo</span>
-              <p className="mt-0.5 text-sm text-neutral-600 dark:text-neutral-300">BCS Computer Science</p>
-            </div>
-            <div className="shrink-0 text-right">
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">2020–2025</p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Waterloo, ON</p>
-            </div>
+        {/* Projects */}
+        <section id="projects" className="py-8">
+          <div className="mb-5 flex items-baseline justify-between">
+            <p className="text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+              Building
+            </p>
+            <Link
+              href="/projects"
+              className="text-sm text-neutral-600 dark:text-neutral-300 transition-colors hover:text-black dark:hover:text-white"
+            >
+              See all projects <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {featuredProjects.map((project) => (
+              <div
+                key={project.name}
+                className="border border-black/[0.10] dark:border-white/[0.10] p-4"
+              >
+                <div className="mb-1 flex items-start justify-between gap-4">
+                  <h3 className="font-medium text-black dark:text-white">
+                    {project.name}
+                    <span className="ml-2 font-mono text-xs font-normal text-neutral-500">{project.niche}</span>
+                  </h3>
+                  {project.status === "building" ? (
+                    <span className="mt-0.5 flex shrink-0 items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                      building
+                    </span>
+                  ) : (
+                    <span className="mt-0.5 shrink-0 text-xs text-black/20 dark:text-white/20">
+                      planned
+                    </span>
+                  )}
+                </div>
+                <p className="mb-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+                  {project.description}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {project.stack.map((tech) => (
+                    <span
+                      key={tech}
+                      className="rounded bg-black/[0.04] dark:bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs text-neutral-600 dark:text-neutral-300"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
         <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
 
-        {/* Skills */}
-        <section className="py-24">
-          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-            Stack
-          </p>
-          <p className="scroll-reveal font-mono text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
-            Go · Python · TypeScript · Kafka · ClickHouse · OpenTelemetry · Kubernetes · AWS
-          </p>
+        {/* Education + Stack */}
+        <section className="grid gap-6 py-8 sm:grid-cols-2">
+          <div>
+            <p className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+              Education
+            </p>
+            <span className="font-medium text-black dark:text-white">University of Waterloo</span>
+            <p className="text-sm text-neutral-600 dark:text-neutral-300">BCS Computer Science · 2020–2025</p>
+          </div>
+          <div>
+            <p className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+              Stack
+            </p>
+            <p className="font-mono text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+              Go · Python · TypeScript · Kafka · ClickHouse · OpenTelemetry · Kubernetes · AWS
+            </p>
+          </div>
         </section>
       </main>
 
       <footer className="relative z-10 border-t border-black/[0.06] dark:border-white/[0.06]">
-        <div className="mx-auto max-w-4xl px-6 py-8 flex items-center justify-between">
+        <div className="mx-auto max-w-4xl px-6 py-5 flex items-center justify-between">
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
             Built with Next.js · Tailwind
           </p>

@@ -38,14 +38,17 @@ type ExperienceEntry = {
 const experience: ExperienceEntry[] = [
   {
     company: "Capital One Software",
-    subtitle: "Developer Infrastructure",
-    role: "Software Engineer",
+    subtitle: "B2B SaaS",
+    role: "Senior Associate Software Engineer",
     period: "Aug 2025–Present",
     location: "San Francisco, CA",
     current: true,
     bullets: [
-      "Engineered a **20x** API latency reduction (11s → 500ms) on a **4.9B-row** ClickHouse cluster via table partitioning, parallel query execution in Go, materialized columns, and hash-based GROUP BY.",
-      "Diagnosed a **92.5%** billing undercounting defect from incorrect OpenTelemetry metric aggregation; redesigned ClickHouse GROUP BY across all OTel identity dimensions (name, attributes, resource attributes, instrumentation scope), recovering **$1M+** in enterprise contract billing.",
+      "Protected a **$XM+** enterprise contract by diagnosing a **92.5%** billing undercount as platform SME, leading **3** P0 war rooms across OpenTelemetry queries, Go APIs, and S3/Lambda ingestion.",
+      "Scaled a greenfield observability platform from **0 to 10M+** metrics per day as 1 of 3 engineers, selecting ClickHouse after benchmarking and shipping usage-based billing for the product's first air-gapped enterprise customer.",
+      "Reduced p99 dashboard API latency **22x**, from **11s to 500ms**, eliminating customer timeouts through database partition pruning, materialized columns, and parallel Go query execution.",
+      "Cut AWS spend **61%**, from **$XK to $XK/year**, via compute right-sizing and storage tuning with **zero** performance regressions.",
+      "Eliminated silent billing data loss by fixing a cumulative-counter cursor defect and designing restart-safe ingestion checkpoints, SQS retry/DLQ isolation, and partial-batch Lambda failure handling.",
     ],
   },
   {
@@ -55,8 +58,9 @@ const experience: ExperienceEntry[] = [
     location: "Palo Alto, CA",
     current: false,
     bullets: [
-      "Extended Tesla's Fused OTA test suite with production signing validation for ECU binary files across all platforms, preventing unsigned firmware releases that could cause Vehicle Off Road (VOR) events across **1M+** updates per release.",
-      "Built a cross-platform Canbase link layer backend (TCAN, UDP CAN, MAC-CAN) enabling Mac-native ECU access, eliminating the Windows VM dependency for firmware and manufacturing engineering teams.",
+      "Protected **1M+** vehicles across every Tesla model with firmware signature validation that still gates each weekly update release.",
+      "Cut vehicle ECU debugger setup time from **30 min** to **one command** for **40+** engineers by replacing a Windows-only dependency with native macOS support in Tesla's Python CAN/UDS stack.",
+      "Standardized firmware security tooling across **2** teams by defining a Python integration interface for artifact retrieval, signing-key access, and algorithm publication.",
     ],
   },
   {
@@ -66,19 +70,21 @@ const experience: ExperienceEntry[] = [
     location: "Remote",
     current: false,
     bullets: [
-      "Built Super+ (Super.com's flagship membership) across Flask/PostgreSQL and React with Braintree webhook idempotent reconciliation and LaunchDarkly feature-flagged rollouts; now driving ~**$180M ARR** across **950K+** members.",
-      "Built fraud detection observability from scratch using DataDog; instrumented the Flask microservice with structured logs, metrics, and alerting, cutting time-to-detect for fraud events from **30+ min to near real-time**.",
+      "Built launch payments infrastructure for Super+ (now **$XM ARR**), owning idempotent Braintree webhook reconciliation to prevent duplicate charges across **10K** daily payments.",
+      "Shipped near-real-time fraud detection for Super+ payments by instrumenting suspicious transaction and credit activity with Python, Datadog alerts, and Amplitude event tracking, preventing **$XK** in fraudulent charges.",
     ],
   },
   {
     company: "PlayStation",
-    role: "Software Developer Intern",
-    period: "Jan–Apr 2022 · Sep–Dec 2022",
+    role: "Software Engineer Intern",
+    period: "Jan–Dec 2022",
     location: "Remote",
     current: false,
     bullets: [
-      "Designed and built a now-patented PS5 calendar feature in React Native; expanded Python test automation on PS4 to catch **16+** critical bugs before they shipped to a **40M+** user platform.",
-      "Shipped tier-based subscription UI across PS5 (React Native) and PS4 (Vanilla JS) for the PS Plus redesign; coordinated with backend and design teams on API contracts and content flows, part of a launch generating **$600M+** annual revenue.",
+      "Shipped subscription-tier redesign UI on PS5 in React Native and PS4 in JavaScript for PS Plus's **$XM+** annual revenue tier launch.",
+      "Named inventor on a Sony patent filing for a PS5 calendar interaction model, shipping it end-to-end in React Native to **40M+** users.",
+      "Diagnosed and blocked **16+** critical subscription regressions before release by expanding Python integration coverage and triaging flaky vs production-impacting failures across PS4's renewal pipeline.",
+      "Cut cross-team integration time from weeks to hours by designing a contract-first mock API layer for the PS4/PS5 subscription pipeline, adopted by **4** downstream frontend teams.",
     ],
   },
 ];
@@ -88,7 +94,7 @@ export default function Home() {
     <div className="min-h-screen font-sans text-[--foreground]">
       <Nav />
 
-      <main className="relative z-10 mx-auto max-w-4xl px-6">
+      <main className="relative z-10 mx-auto max-w-6xl px-6">
         {/* Hero */}
         <section className="pb-8 pt-24">
           <div className="animate-fade-up flex flex-col items-start gap-5 sm:flex-row sm:items-center">
@@ -124,120 +130,122 @@ export default function Home() {
 
         <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
 
-        {/* Experience */}
-        <section className="py-8">
-          <p className="mb-5 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-            Work
-          </p>
-          <div className="space-y-5">
-            {experience.map((job, i) => (
-              <div key={`${job.company}-${i}`}>
-                <div className="mb-1.5 flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
-                  <div className="flex flex-wrap items-baseline gap-x-2">
-                    {job.current && (
-                      <span className="h-1.5 w-1.5 shrink-0 self-center animate-pulse rounded-full bg-emerald-500" />
-                    )}
-                    <span className="font-medium text-black dark:text-white">{job.company}</span>
-                    {job.subtitle && (
-                      <span className="text-xs text-neutral-500 dark:text-neutral-400">· {job.subtitle}</span>
-                    )}
-                    <span className="text-sm text-neutral-600 dark:text-neutral-300">— {job.role}</span>
+        <div className="grid gap-x-12 lg:grid-cols-3">
+          {/* Experience */}
+          <section className="py-8 lg:col-span-2">
+            <p className="mb-5 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+              Work
+            </p>
+            <div className="space-y-5">
+              {experience.map((job, i) => (
+                <div key={`${job.company}-${i}`}>
+                  <div className="mb-1.5 flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+                    <div>
+                      <div className="flex flex-wrap items-baseline gap-x-2">
+                        {job.current && (
+                          <span className="h-1.5 w-1.5 shrink-0 self-center animate-pulse rounded-full bg-emerald-500" />
+                        )}
+                        <span className="font-medium text-black dark:text-white">{job.company}</span>
+                        {job.subtitle && (
+                          <span className="text-xs text-neutral-500 dark:text-neutral-400">· {job.subtitle}</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-neutral-600 dark:text-neutral-300">{job.role}</p>
+                    </div>
+                    <p className="shrink-0 text-xs text-neutral-500 sm:text-right dark:text-neutral-400">
+                      {job.period} · {job.location}
+                    </p>
                   </div>
-                  <p className="shrink-0 text-xs text-neutral-500 sm:text-right dark:text-neutral-400">
-                    {job.period} · {job.location}
-                  </p>
+                  <ul className="space-y-1 border-l border-black/[0.06] pl-4 dark:border-white/[0.06]">
+                    {job.bullets.map((bullet, j) => (
+                      <li key={j} className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+                        {boldify(bullet)}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="space-y-1 border-l border-black/[0.06] pl-4 dark:border-white/[0.06]">
-                  {job.bullets.map((bullet, j) => (
-                    <li key={j} className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-                      {boldify(bullet)}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
 
-        <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
-
-        {/* Projects */}
-        <section id="projects" className="py-8">
-          <div className="mb-5 flex items-baseline justify-between">
-            <p className="text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-              Building
-            </p>
-            <Link
-              href="/projects"
-              className="text-sm text-neutral-600 dark:text-neutral-300 transition-colors hover:text-black dark:hover:text-white"
-            >
-              See all projects <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {featuredProjects.map((project) => (
-              <div
-                key={project.name}
-                className="border border-black/[0.10] dark:border-white/[0.10] p-4"
-              >
-                <div className="mb-1 flex items-start justify-between gap-4">
-                  <h3 className="font-medium text-black dark:text-white">
-                    {project.name}
-                    <span className="ml-2 font-mono text-xs font-normal text-neutral-500">{project.niche}</span>
-                  </h3>
-                  {project.status === "building" ? (
-                    <span className="mt-0.5 flex shrink-0 items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                      building
-                    </span>
-                  ) : (
-                    <span className="mt-0.5 shrink-0 text-xs text-black/20 dark:text-white/20">
-                      planned
-                    </span>
-                  )}
-                </div>
-                <p className="mb-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-                  {project.description}
+          <aside className="space-y-8 border-t border-black/[0.06] py-8 dark:border-white/[0.06] lg:border-t-0">
+            {/* Projects */}
+            <section id="projects">
+              <div className="mb-5 flex items-baseline justify-between">
+                <p className="text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                  Building
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {project.stack.map((tech) => (
-                    <span
-                      key={tech}
-                      className="rounded bg-black/[0.04] dark:bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs text-neutral-600 dark:text-neutral-300"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
+                <Link
+                  href="/projects"
+                  className="text-sm text-neutral-600 dark:text-neutral-300 transition-colors hover:text-black dark:hover:text-white"
+                >
+                  See all projects <span aria-hidden="true">→</span>
+                </Link>
               </div>
-            ))}
-          </div>
-        </section>
+              <div className="space-y-3">
+                {featuredProjects.map((project) => (
+                  <div
+                    key={project.name}
+                    className="border border-black/[0.10] dark:border-white/[0.10] p-4"
+                  >
+                    <div className="mb-1 flex items-start justify-between gap-4">
+                      <h3 className="font-medium text-black dark:text-white">
+                        {project.name}
+                        <span className="ml-2 font-mono text-xs font-normal text-neutral-500">{project.niche}</span>
+                      </h3>
+                      {project.status === "building" ? (
+                        <span className="mt-0.5 flex shrink-0 items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                          building
+                        </span>
+                      ) : (
+                        <span className="mt-0.5 shrink-0 text-xs text-black/20 dark:text-white/20">
+                          planned
+                        </span>
+                      )}
+                    </div>
+                    <p className="mb-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+                      {project.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.stack.map((tech) => (
+                        <span
+                          key={tech}
+                          className="rounded bg-black/[0.04] dark:bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs text-neutral-600 dark:text-neutral-300"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
 
-        <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
+            {/* Education */}
+            <section>
+              <p className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                Education
+              </p>
+              <span className="font-medium text-black dark:text-white">University of Waterloo</span>
+              <p className="text-sm text-neutral-600 dark:text-neutral-300">BCS Computer Science · 2020–2025</p>
+            </section>
 
-        {/* Education + Stack */}
-        <section className="grid gap-6 py-8 sm:grid-cols-2">
-          <div>
-            <p className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-              Education
-            </p>
-            <span className="font-medium text-black dark:text-white">University of Waterloo</span>
-            <p className="text-sm text-neutral-600 dark:text-neutral-300">BCS Computer Science · 2020–2025</p>
-          </div>
-          <div>
-            <p className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-              Stack
-            </p>
-            <p className="font-mono text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-              Go · Python · TypeScript · Kafka · ClickHouse · OpenTelemetry · Kubernetes · AWS
-            </p>
-          </div>
-        </section>
+            {/* Stack */}
+            <section>
+              <p className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                Stack
+              </p>
+              <p className="font-mono text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+                Go · Python · TypeScript · Kafka · ClickHouse · OpenTelemetry · Kubernetes · AWS
+              </p>
+            </section>
+          </aside>
+        </div>
       </main>
 
       <footer className="relative z-10 border-t border-black/[0.06] dark:border-white/[0.06]">
-        <div className="mx-auto max-w-4xl px-6 py-5 flex items-center justify-between">
+        <div className="mx-auto max-w-6xl px-6 py-5 flex items-center justify-between">
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
             Built with Next.js · Tailwind
           </p>

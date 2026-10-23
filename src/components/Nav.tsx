@@ -13,7 +13,6 @@ type NavLink = {
 
 const links: NavLink[] = [
   { label: "Projects", href: "/projects" },
-  { label: "Writing", href: "/blog" },
   {
     label: "Learning",
     dropdown: [
@@ -133,7 +132,7 @@ function MobileMenu({
   if (!open) return null;
   return (
     <div className="md:hidden border-t border-black/[0.06] dark:border-white/[0.06]">
-      <div className="mx-auto max-w-4xl px-6 py-3">
+      <div className="mx-auto max-w-6xl px-6 py-3">
         {links.map((link) => {
           if (link.dropdown) {
             return (
@@ -197,7 +196,7 @@ export function Nav() {
 
   return (
     <nav className="fixed inset-x-0 top-0 z-50 border-b border-black/[0.08] dark:border-white/[0.08] bg-white/80 dark:bg-black/80 backdrop-blur-md">
-      <div className="mx-auto max-w-4xl px-6">
+      <div className="mx-auto max-w-6xl px-6">
         <div className="flex items-center justify-between py-4">
           <Link
             href="/"

@@ -38,14 +38,17 @@ type ExperienceEntry = {
 const experience: ExperienceEntry[] = [
   {
     company: "Capital One Software",
-    subtitle: "Developer Infrastructure",
-    role: "Software Engineer",
+    subtitle: "B2B SaaS",
+    role: "Senior Associate Software Engineer",
     period: "Aug 2025–Present",
     location: "San Francisco, CA",
     current: true,
     bullets: [
-      "Engineered a **20x** API latency reduction (11s → 500ms) on a **4.9B-row** ClickHouse cluster via table partitioning, parallel query execution in Go, materialized columns, and hash-based GROUP BY.",
-      "Diagnosed a **92.5%** billing undercounting defect from incorrect OpenTelemetry metric aggregation; redesigned ClickHouse GROUP BY across all OTel identity dimensions (name, attributes, resource attributes, instrumentation scope), recovering **$1M+** in enterprise contract billing.",
+      "Protected a **$XM+** enterprise contract by diagnosing a **92.5%** billing undercount as platform SME, leading **3** P0 war rooms across OpenTelemetry queries, Go APIs, and S3/Lambda ingestion.",
+      "Scaled a greenfield observability platform from **0 to 10M+** metrics per day as 1 of 3 engineers, selecting ClickHouse after benchmarking and shipping usage-based billing for the product's first air-gapped enterprise customer.",
+      "Reduced p99 dashboard API latency **22x**, from **11s to 500ms**, eliminating customer timeouts through database partition pruning, materialized columns, and parallel Go query execution.",
+      "Cut AWS spend **61%**, from **$XK to $XK/year**, via compute right-sizing and storage tuning with **zero** performance regressions.",
+      "Eliminated silent billing data loss by fixing a cumulative-counter cursor defect and designing restart-safe ingestion checkpoints, SQS retry/DLQ isolation, and partial-batch Lambda failure handling.",
     ],
   },
   {
@@ -55,8 +58,9 @@ const experience: ExperienceEntry[] = [
     location: "Palo Alto, CA",
     current: false,
     bullets: [
-      "Extended Tesla's Fused OTA test suite with production signing validation for ECU binary files across all platforms, preventing unsigned firmware releases that could cause Vehicle Off Road (VOR) events across **1M+** updates per release.",
-      "Built a cross-platform Canbase link layer backend (TCAN, UDP CAN, MAC-CAN) enabling Mac-native ECU access, eliminating the Windows VM dependency for firmware and manufacturing engineering teams.",
+      "Protected **1M+** vehicles across every Tesla model with firmware signature validation that still gates each weekly update release.",
+      "Cut vehicle ECU debugger setup time from **30 min** to **one command** for **40+** engineers by replacing a Windows-only dependency with native macOS support in Tesla's Python CAN/UDS stack.",
+      "Standardized firmware security tooling across **2** teams by defining a Python integration interface for artifact retrieval, signing-key access, and algorithm publication.",
     ],
   },
   {
@@ -66,19 +70,21 @@ const experience: ExperienceEntry[] = [
     location: "Remote",
     current: false,
     bullets: [
-      "Built Super+ (Super.com's flagship membership) across Flask/PostgreSQL and React with Braintree webhook idempotent reconciliation and LaunchDarkly feature-flagged rollouts; now driving ~**$180M ARR** across **950K+** members.",
-      "Built fraud detection observability from scratch using DataDog; instrumented the Flask microservice with structured logs, metrics, and alerting, cutting time-to-detect for fraud events from **30+ min to near real-time**.",
+      "Built launch payments infrastructure for Super+ (now **$XM ARR**), owning idempotent Braintree webhook reconciliation to prevent duplicate charges across **10K** daily payments.",
+      "Shipped near-real-time fraud detection for Super+ payments by instrumenting suspicious transaction and credit activity with Python, Datadog alerts, and Amplitude event tracking, preventing **$XK** in fraudulent charges.",
     ],
   },
   {
     company: "PlayStation",
-    role: "Software Developer Intern",
-    period: "Jan–Apr 2022 · Sep–Dec 2022",
+    role: "Software Engineer Intern",
+    period: "Jan–Dec 2022",
     location: "Remote",
     current: false,
     bullets: [
-      "Designed and built a now-patented PS5 calendar feature in React Native; expanded Python test automation on PS4 to catch **16+** critical bugs before they shipped to a **40M+** user platform.",
-      "Shipped tier-based subscription UI across PS5 (React Native) and PS4 (Vanilla JS) for the PS Plus redesign; coordinated with backend and design teams on API contracts and content flows, part of a launch generating **$600M+** annual revenue.",
+      "Shipped subscription-tier redesign UI on PS5 in React Native and PS4 in JavaScript for PS Plus's **$XM+** annual revenue tier launch.",
+      "Named inventor on a Sony patent filing for a PS5 calendar interaction model, shipping it end-to-end in React Native to **40M+** users.",
+      "Diagnosed and blocked **16+** critical subscription regressions before release by expanding Python integration coverage and triaging flaky vs production-impacting failures across PS4's renewal pipeline.",
+      "Cut cross-team integration time from weeks to hours by designing a contract-first mock API layer for the PS4/PS5 subscription pipeline, adopted by **4** downstream frontend teams.",
     ],
   },
 ];
@@ -88,53 +94,34 @@ export default function Home() {
     <div className="min-h-screen font-sans text-[--foreground]">
       <Nav />
 
-      <main className="relative z-10 mx-auto max-w-4xl px-6">
+      <main className="relative z-10 mx-auto max-w-6xl px-6">
         {/* Hero */}
-        <section className="relative pb-32 pt-48">
-          {/* Radial glow behind hero */}
-          <div className="pointer-events-none absolute -top-16 left-0 h-80 w-80 rounded-full bg-white/[0.03] blur-3xl dark:bg-white/[0.04]" />
-
-          {/* Availability badge */}
-          <div className="animate-fade-up mb-10 inline-flex items-center gap-2 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.04] dark:bg-white/[0.04] px-3.5 py-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-            Available · Open to new roles
-          </div>
-
-          {/* Photo + name block */}
-          <div className="animate-fade-up anim-delay-1 mb-10 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
+        <section className="pb-8 pt-24">
+          <div className="animate-fade-up flex flex-col items-start gap-5 sm:flex-row sm:items-center">
             <Image
               src="/pfp.png"
               alt="Saad Mukhtar"
-              width={120}
-              height={120}
-              className="h-24 w-24 shrink-0 rounded-full object-cover sm:h-[120px] sm:w-[120px]"
+              width={80}
+              height={80}
+              className="h-16 w-16 shrink-0 rounded-full object-cover sm:h-20 sm:w-20"
             />
-            <div className="min-w-0">
-              <h1 className="mb-3 text-4xl font-semibold tracking-tight text-black dark:text-white sm:text-5xl md:text-6xl">
-                Saad Mukhtar.
-              </h1>
-              <p className="mb-2 text-base text-neutral-600 dark:text-neutral-300 sm:text-lg">
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white sm:text-4xl">
+                  Saad Mukhtar
+                </h1>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] px-2.5 py-0.5 text-xs text-neutral-600 dark:text-neutral-400">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                  Open to new roles
+                </span>
+              </div>
+              <p className="text-sm text-neutral-600 dark:text-neutral-300 sm:text-base">
                 Software Engineer · Distributed Systems · Infrastructure
               </p>
-              <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300 sm:text-base">
-                Capital One Software · Tesla · PlayStation · Super.com · UWaterloo CS
-              </p>
             </div>
-          </div>
-
-          <div className="animate-fade-up anim-delay-2 flex flex-wrap gap-3">
-            <a
-              href="#projects"
-              className="inline-flex items-center gap-2 rounded-full bg-black dark:bg-white px-5 py-2.5 text-sm font-medium text-white dark:text-black transition-opacity hover:opacity-75"
-            >
-              View Projects
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <path d="M6 1v10M1 6l5 5 5-5" />
-              </svg>
-            </a>
             <a
               href="mailto:saadmukhtar01@gmail.com"
-              className="inline-flex items-center gap-2 rounded-full border border-black/15 dark:border-white/15 px-5 py-2.5 text-sm text-black dark:text-white transition-colors hover:border-black/35 dark:hover:border-white/35"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-black dark:bg-white px-4 py-2 text-sm font-medium text-white dark:text-black transition-opacity hover:opacity-75"
             >
               Get in Touch →
             </a>
@@ -143,137 +130,122 @@ export default function Home() {
 
         <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
 
-        {/* Projects */}
-        <section id="projects" className="py-24">
-          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-            Building
-          </p>
-          <div className="grid sm:grid-cols-2">
-            {featuredProjects.map((project) => (
-              <div
-                key={project.name}
-                className="scroll-reveal group border border-black/[0.10] dark:border-white/[0.10] p-6 transition-all duration-200 hover:-translate-y-0.5 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
-              >
-                <p className="mb-1 font-mono text-xs text-neutral-500 dark:text-neutral-500">
-                  {project.niche}
-                </p>
-                <div className="mb-2 flex items-start justify-between gap-4">
-                  <h3 className="font-medium text-black dark:text-white">{project.name}</h3>
-                  {project.status === "building" ? (
-                    <span className="mt-0.5 flex shrink-0 items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                      building
-                    </span>
-                  ) : (
-                    <span className="mt-0.5 shrink-0 text-xs text-black/20 dark:text-white/20">
-                      planned
-                    </span>
-                  )}
+        <div className="grid gap-x-12 lg:grid-cols-3">
+          {/* Experience */}
+          <section className="py-8 lg:col-span-2">
+            <p className="mb-5 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+              Work
+            </p>
+            <div className="space-y-5">
+              {experience.map((job, i) => (
+                <div key={`${job.company}-${i}`}>
+                  <div className="mb-1.5 flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+                    <div>
+                      <div className="flex flex-wrap items-baseline gap-x-2">
+                        {job.current && (
+                          <span className="h-1.5 w-1.5 shrink-0 self-center animate-pulse rounded-full bg-emerald-500" />
+                        )}
+                        <span className="font-medium text-black dark:text-white">{job.company}</span>
+                        {job.subtitle && (
+                          <span className="text-xs text-neutral-500 dark:text-neutral-400">· {job.subtitle}</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-neutral-600 dark:text-neutral-300">{job.role}</p>
+                    </div>
+                    <p className="shrink-0 text-xs text-neutral-500 sm:text-right dark:text-neutral-400">
+                      {job.period} · {job.location}
+                    </p>
+                  </div>
+                  <ul className="space-y-1 border-l border-black/[0.06] pl-4 dark:border-white/[0.06]">
+                    {job.bullets.map((bullet, j) => (
+                      <li key={j} className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+                        {boldify(bullet)}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <p className="mb-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-                  {project.description}
+              ))}
+            </div>
+          </section>
+
+          <aside className="space-y-8 border-t border-black/[0.06] py-8 dark:border-white/[0.06] lg:border-t-0">
+            {/* Projects */}
+            <section id="projects">
+              <div className="mb-5 flex items-baseline justify-between">
+                <p className="text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                  Building
                 </p>
-                <div className="flex flex-wrap gap-3">
-                  {project.stack.map((tech) => (
-                    <span
-                      key={tech}
-                      className="rounded bg-black/[0.04] dark:bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs text-neutral-600 dark:text-neutral-300"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
+                <Link
+                  href="/projects"
+                  className="text-sm text-neutral-600 dark:text-neutral-300 transition-colors hover:text-black dark:hover:text-white"
+                >
+                  See all projects <span aria-hidden="true">→</span>
+                </Link>
               </div>
-            ))}
-          </div>
-          <div className="scroll-reveal mt-8">
-            <Link
-              href="/projects"
-              className="inline-flex items-center gap-1.5 text-sm text-neutral-600 dark:text-neutral-300 transition-colors hover:text-black dark:hover:text-white"
-            >
-              See all projects
-              <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-        </section>
-
-        <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
-
-        {/* Experience */}
-        <section className="py-24">
-          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-            Work
-          </p>
-          <div className="space-y-10">
-            {experience.map((job, i) => (
-              <div
-                key={`${job.company}-${i}`}
-                className="scroll-reveal"
-              >
-                <div className="flex items-start justify-between gap-6 mb-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      {job.current && (
-                        <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-emerald-500" />
-                      )}
-                      <span className="font-medium text-black dark:text-white">{job.company}</span>
-                      {job.subtitle && (
-                        <span className="text-xs text-neutral-500 dark:text-neutral-400">· {job.subtitle}</span>
+              <div className="space-y-3">
+                {featuredProjects.map((project) => (
+                  <div
+                    key={project.name}
+                    className="border border-black/[0.10] dark:border-white/[0.10] p-4"
+                  >
+                    <div className="mb-1 flex items-start justify-between gap-4">
+                      <h3 className="font-medium text-black dark:text-white">
+                        {project.name}
+                        <span className="ml-2 font-mono text-xs font-normal text-neutral-500">{project.niche}</span>
+                      </h3>
+                      {project.status === "building" ? (
+                        <span className="mt-0.5 flex shrink-0 items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                          building
+                        </span>
+                      ) : (
+                        <span className="mt-0.5 shrink-0 text-xs text-black/20 dark:text-white/20">
+                          planned
+                        </span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-sm text-neutral-600 dark:text-neutral-300">{job.role}</p>
+                    <p className="mb-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+                      {project.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.stack.map((tech) => (
+                        <span
+                          key={tech}
+                          className="rounded bg-black/[0.04] dark:bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs text-neutral-600 dark:text-neutral-300"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{job.period}</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{job.location}</p>
-                  </div>
-                </div>
-                <ul className="space-y-2 pl-4 border-l border-black/[0.06] dark:border-white/[0.06]">
-                  {job.bullets.map((bullet, j) => (
-                    <li key={j} className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-                      {boldify(bullet)}
-                    </li>
-                  ))}
-                </ul>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
+            </section>
 
-        <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
-
-        {/* Education */}
-        <section className="py-24">
-          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-            Education
-          </p>
-          <div className="scroll-reveal flex items-start justify-between gap-6">
-            <div>
+            {/* Education */}
+            <section>
+              <p className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                Education
+              </p>
               <span className="font-medium text-black dark:text-white">University of Waterloo</span>
-              <p className="mt-0.5 text-sm text-neutral-600 dark:text-neutral-300">BCS Computer Science</p>
-            </div>
-            <div className="shrink-0 text-right">
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">2020–2025</p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Waterloo, ON</p>
-            </div>
-          </div>
-        </section>
+              <p className="text-sm text-neutral-600 dark:text-neutral-300">BCS Computer Science · 2020–2025</p>
+            </section>
 
-        <div className="border-t border-black/[0.06] dark:border-white/[0.06]" />
-
-        {/* Skills */}
-        <section className="py-24">
-          <p className="scroll-reveal mb-12 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-            Stack
-          </p>
-          <p className="scroll-reveal font-mono text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
-            Go · Python · TypeScript · Kafka · ClickHouse · OpenTelemetry · Kubernetes · AWS
-          </p>
-        </section>
+            {/* Stack */}
+            <section>
+              <p className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                Stack
+              </p>
+              <p className="font-mono text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+                Go · Python · TypeScript · Kafka · ClickHouse · OpenTelemetry · Kubernetes · AWS
+              </p>
+            </section>
+          </aside>
+        </div>
       </main>
 
       <footer className="relative z-10 border-t border-black/[0.06] dark:border-white/[0.06]">
-        <div className="mx-auto max-w-4xl px-6 py-8 flex items-center justify-between">
+        <div className="mx-auto max-w-6xl px-6 py-5 flex items-center justify-between">
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
             Built with Next.js · Tailwind
           </p>
